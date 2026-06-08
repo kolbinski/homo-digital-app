@@ -23,6 +23,8 @@ export interface UserOffer {
   applied_at?: string
   matched_at: string
   created_at: string
+  city?: string
+  work_model?: string
 }
 
 export type OfferStatus =

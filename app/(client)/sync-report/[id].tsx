@@ -1,5 +1,7 @@
-import { View, Text, ScrollView, ActivityIndicator, StyleSheet } from 'react-native'
+import { useRef, useState } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
 import { Stack, useLocalSearchParams } from 'expo-router'
+import { ArrowCircleUp } from 'phosphor-react-native'
 import { useSyncReport } from '../../../src/hooks/useSyncReports'
 import { SyncReportOfferCard } from '../../../src/components/SyncReportOfferCard'
 import { formatNum } from '../../../src/utils/formatNum'
@@ -12,24 +14,17 @@ function formatDate(iso: string): string {
   return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`
 }
 
-interface SectionHeaderProps {
-  title: string
-  color: string
-  bg: string
-  border: string
-}
-
-function SectionHeader({ title, color, bg, border }: SectionHeaderProps) {
+function SectionHeader({ title }: { title: string }) {
   return (
-    <View style={[styles.sectionHeader, { backgroundColor: bg, borderColor: border }]}>
-      <Text style={[styles.sectionTitle, { color }]}>{title}</Text>
-    </View>
+    <Text style={styles.sectionTitle}>{title}</Text>
   )
 }
 
 export default function SyncReportDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { data: sync, isLoading, isError } = useSyncReport(id)
+  const [showScrollTop, setShowScrollTop] = useState(false)
+  const scrollRef = useRef<ScrollView>(null)
 
   const report = sync?.report
   const worthApplying: SyncReportOffer[] = report?.worth_applying ?? []
@@ -56,21 +51,22 @@ export default function SyncReportDetailScreen() {
           <Text style={styles.messageText}>Failed to load report.</Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          ref={scrollRef}
+          contentContainerStyle={styles.scrollContent}
+          onScroll={e => setShowScrollTop(e.nativeEvent.contentOffset.y > 200)}
+          scrollEventThrottle={16}
+        >
           {scanned != null && (
-            <Text style={styles.scannedText}>
-              Scanned: {formatNum(scanned)} offers
-            </Text>
+            <View style={styles.scannedBox}>
+              <Text style={styles.scannedCount}>{formatNum(scanned)}</Text>
+              <Text style={styles.scannedLabel}>new offers scanned</Text>
+            </View>
           )}
 
           {worthApplying.length > 0 && (
             <View style={styles.section}>
-              <SectionHeader
-                title="Worth applying"
-                color="#15803d"
-                bg="#f0fdf4"
-                border="#bbf7d0"
-              />
+              <SectionHeader title="Worth applying" />
               {worthApplying.map(offer => (
                 <SyncReportOfferCard key={offer.id} offer={offer} />
               ))}
@@ -79,12 +75,7 @@ export default function SyncReportDetailScreen() {
 
           {levelUp.length > 0 && (
             <View style={styles.section}>
-              <SectionHeader
-                title="Level up & earn more"
-                color="#c2410c"
-                bg="#fff7ed"
-                border="#fed7aa"
-              />
+              <SectionHeader title="Level up & earn more" />
               {levelUp.map(offer => (
                 <SyncReportOfferCard key={offer.id} offer={offer} />
               ))}
@@ -97,6 +88,15 @@ export default function SyncReportDetailScreen() {
             </View>
           )}
         </ScrollView>
+      )}
+
+      {showScrollTop && (
+        <TouchableOpacity
+          onPress={() => scrollRef.current?.scrollTo({ y: 0, animated: true })}
+          style={styles.scrollTopButton}
+        >
+          <ArrowCircleUp size={28} color="#1a1a1a" />
+        </TouchableOpacity>
       )}
     </View>
   )
@@ -126,32 +126,52 @@ const styles = StyleSheet.create({
     color: '#4a4a4a',
     textAlign: 'center',
   },
-  scannedText: {
-    fontSize: 13,
-    color: '#6b7280',
+  scannedBox: {
+    backgroundColor: '#2563eb',
+    padding: 20,
     marginBottom: 16,
-    paddingHorizontal: 16,
+    alignItems: 'center',
+  },
+  scannedCount: {
+    color: '#fff',
+    fontSize: 28,
+    fontWeight: '700',
+  },
+  scannedLabel: {
+    color: '#bfdbfe',
+    fontSize: 14,
+    marginTop: 4,
   },
   scrollContent: {
-    paddingVertical: 16,
+    paddingBottom: 16,
     gap: 24,
   },
   section: {
     gap: 0,
   },
-  sectionHeader: {
-    marginHorizontal: 16,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    alignSelf: 'flex-start',
-  },
   sectionTitle: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
+    color: '#6b7280',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  scrollTopButton: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 })

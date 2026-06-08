@@ -66,9 +66,24 @@ export function OfferCard({ offer }: Props) {
         )}
         <Text style={styles.titleText} numberOfLines={2}>
           <Text style={styles.titleBold}>{offer.offer_title}</Text>
-          <Text style={styles.titleCompany}> @ {offer.offer_company}</Text>
+          <Text style={styles.titleCompany}>{' @ '}{offer.offer_company}</Text>
         </Text>
       </View>
+
+      {(offer.city || offer.work_model) && (
+        <View style={{ flexDirection: 'row', gap: 6, marginTop: 4, marginBottom: 6 }}>
+          {offer.work_model && (
+            <View style={{ backgroundColor: '#f3f4f6', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 }}>
+              <Text style={{ fontSize: 11, color: '#6b7280' }}>{offer.work_model}</Text>
+            </View>
+          )}
+          {offer.city && (
+            <View style={{ backgroundColor: '#f3f4f6', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 }}>
+              <Text style={{ fontSize: 11, color: '#6b7280' }}>{offer.city}</Text>
+            </View>
+          )}
+        </View>
+      )}
 
       {offer.salary?.length > 0 && (
         <View style={styles.salaryBlock}>

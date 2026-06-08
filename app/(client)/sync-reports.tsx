@@ -1,47 +1,113 @@
-import { useState, useCallback } from 'react'
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native'
-import { Stack, useRouter, useFocusEffect } from 'expo-router'
-import { useSyncReports } from '../../src/hooks/useSyncReports'
-import type { SyncReportSummary } from '../../src/types/syncReport'
+import { useState, useCallback, useRef } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
+import { Stack, useRouter, useFocusEffect } from 'expo-router';
+import { ArrowCircleUp } from 'phosphor-react-native';
+import { useSyncReports } from '../../src/hooks/useSyncReports';
+import type { SyncReportSummary } from '../../src/types/syncReport';
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 
 function formatDate(iso: string): string {
-  const d = new Date(iso)
-  const day = d.getDate()
-  const month = MONTHS[d.getMonth()]
-  const year = d.getFullYear()
-  const hh = String(d.getHours()).padStart(2, '0')
-  const mm = String(d.getMinutes()).padStart(2, '0')
-  return `${day} ${month} ${year}, ${hh}:${mm}`
+  const d = new Date(iso);
+  const day = d.getDate();
+  const month = MONTHS[d.getMonth()];
+  const year = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return `${day} ${month} ${year}, ${hh}:${mm}`;
 }
 
-function SyncCard({ sync, onPress }: { sync: SyncReportSummary; onPress: () => void }) {
+function SyncCard({
+  sync,
+  onPress,
+}: {
+  sync: SyncReportSummary;
+  onPress: () => void;
+}) {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
       <Text style={styles.date}>{formatDate(sync.created_at)}</Text>
-      <View style={styles.counts}>
-        <Text style={styles.countText}>
-          Worth applying: <Text style={styles.countBold}>{sync.report?.worth_applying?.length ?? 0}</Text> offers
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+          marginBottom: 6,
+        }}
+      >
+        <View
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            backgroundColor: '#dcfce7',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#16a34a' }}>
+            {sync.report?.worth_applying?.length ?? 0}
+          </Text>
+        </View>
+        <Text style={{ fontSize: 13, color: '#1a1a1a' }}>
+          worth applying offers
         </Text>
-        <Text style={styles.countText}>
-          Level up: <Text style={styles.countBold}>{sync.report?.level_up?.length ?? 0}</Text> offers
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <View
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            backgroundColor: '#fff7ed',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#ea580c' }}>
+            {sync.report?.level_up?.length ?? 0}
+          </Text>
+        </View>
+        <Text style={{ fontSize: 13, color: '#1a1a1a' }}>
+          level up and earn more offers
         </Text>
       </View>
     </TouchableOpacity>
-  )
+  );
 }
 
 export default function SyncReportsScreen() {
-  const router = useRouter()
-  const [navigating, setNavigating] = useState(false)
-  const { data, isLoading, isError } = useSyncReports()
+  const router = useRouter();
+  const [navigating, setNavigating] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const flatListRef = useRef<FlatList<SyncReportSummary>>(null);
+  const { data, isLoading, isError } = useSyncReports();
 
   useFocusEffect(
     useCallback(() => {
-      setNavigating(false)
-    }, [])
-  )
+      setNavigating(false);
+    }, []),
+  );
 
   return (
     <View style={styles.root}>
@@ -64,19 +130,22 @@ export default function SyncReportsScreen() {
         </View>
       ) : (
         <FlatList
+          ref={flatListRef}
           data={data ?? []}
           keyExtractor={item => item.id}
           renderItem={({ item }) => (
             <SyncCard
               sync={item}
               onPress={() => {
-                if (navigating) return
-                setNavigating(true)
-                router.push(`/(client)/sync-report/${item.id}`)
+                if (navigating) return;
+                setNavigating(true);
+                router.push(`/(client)/sync-report/${item.id}`);
               }}
             />
           )}
           contentContainerStyle={styles.listContent}
+          onScroll={e => setShowScrollTop(e.nativeEvent.contentOffset.y > 200)}
+          scrollEventThrottle={16}
           ListEmptyComponent={
             <View style={styles.centered}>
               <Text style={styles.messageText}>No sync reports yet.</Text>
@@ -84,8 +153,19 @@ export default function SyncReportsScreen() {
           }
         />
       )}
+
+      {showScrollTop && (
+        <TouchableOpacity
+          onPress={() =>
+            flatListRef.current?.scrollToOffset({ offset: 0, animated: true })
+          }
+          style={styles.scrollTopButton}
+        >
+          <ArrowCircleUp size={28} color="#1a1a1a" />
+        </TouchableOpacity>
+      )}
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -122,22 +202,27 @@ const styles = StyleSheet.create({
     borderColor: '#f0f0f0',
     borderRadius: 12,
     padding: 16,
-    gap: 8,
   },
   date: {
     fontSize: 15,
     fontWeight: '600',
     color: '#1a1a1a',
+    marginBottom: 10,
   },
-  counts: {
-    gap: 4,
+  scrollTopButton: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  countText: {
-    fontSize: 14,
-    color: '#6b7280',
-  },
-  countBold: {
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-})
+});

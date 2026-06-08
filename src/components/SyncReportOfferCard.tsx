@@ -18,13 +18,28 @@ function getScoreStyle(score: number) {
 
 function SalaryLine({ entry }: { entry: SalaryEntry }) {
   const hasRange = entry.min != null && entry.max != null
+  const hasDelta = entry.delta != null && entry.delta !== 0
+  const deltaPositive = (entry.delta ?? 0) > 0
+  const deltaSign = deltaPositive ? '+' : ''
+  const showNormalized =
+    entry.currency !== 'PLN' &&
+    entry.delta_normalized != null &&
+    entry.delta_normalized !== 0
+
   if (!hasRange) return null
+
   return (
     <View style={styles.salaryRow}>
       <CurrencyCircleDollar size={14} color="#9ca3af" />
       <Text style={styles.salaryLine}>
         {[entry.currency, entry.type].filter(Boolean).join(' ')}{' '}
         {formatNum(entry.min!)} – {formatNum(entry.max!)}
+        {hasDelta && (
+          <Text style={styles.deltaText}>
+            {'  '}{deltaSign}{formatNum(entry.delta!)}
+            {showNormalized ? ` (${formatNum(entry.delta_normalized!)} PLN)` : ''}
+          </Text>
+        )}
       </Text>
     </View>
   )
@@ -52,7 +67,7 @@ export function SyncReportOfferCard({ offer }: Props) {
         )}
         <Text style={styles.titleText} numberOfLines={2}>
           <Text style={styles.titleBold}>{offer.title}</Text>
-          <Text style={styles.titleCompany}> @ {offer.company}</Text>
+          <Text style={styles.titleCompany}>{' @ '}{offer.company}</Text>
         </Text>
       </View>
 
@@ -70,14 +85,14 @@ export function SyncReportOfferCard({ offer }: Props) {
 
       {(offer.city || offer.work_model) && (
         <View style={styles.metaRow}>
-          {offer.city && (
-            <View style={styles.metaBadge}>
-              <Text style={styles.metaText}>{offer.city}</Text>
-            </View>
-          )}
           {offer.work_model && (
             <View style={styles.metaBadge}>
               <Text style={styles.metaText}>{offer.work_model}</Text>
+            </View>
+          )}
+          {offer.city && (
+            <View style={styles.metaBadge}>
+              <Text style={styles.metaText}>{offer.city}</Text>
             </View>
           )}
         </View>
@@ -169,6 +184,9 @@ const styles = StyleSheet.create({
   salaryLine: {
     fontSize: 14,
     color: '#1a1a1a',
+  },
+  deltaText: {
+    color: '#f97316',
   },
   roleFit: {
     fontSize: 12,

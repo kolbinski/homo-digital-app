@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Stack, useRouter } from 'expo-router';
-import { Files, Funnel, Gear, X } from 'phosphor-react-native';
+import { ArrowCircleUp, Files, Funnel, Gear, X } from 'phosphor-react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { useApplications } from '../../src/hooks/useApplications';
 import { OfferCard } from '../../src/components/OfferCard';
@@ -126,6 +126,8 @@ export default function ApplicationsScreen() {
   const [showPicker, setShowPicker] = useState(false);
   const [filtersVisible, setFiltersVisible] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const sectionListRef = useRef<SectionList<UserOffer, Section>>(null);
 
   useEffect(() => {
     if (hydrated && (!token || role !== 'client')) {
@@ -165,17 +167,26 @@ export default function ApplicationsScreen() {
           headerBackVisible: false,
           headerTitle: 'My Applications',
           headerLeft: () => (
-            <Image
-              source={require('../../assets/logo.png')}
-              style={{ width: 32, height: 32, marginLeft: 4, marginBottom: 12 }}
-              resizeMode="contain"
-            />
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Image
+                source={require('../../assets/logo.png')}
+                style={{ width: 32, height: 32, marginRight: 12 }}
+                resizeMode="contain"
+              />
+            </View>
           ),
           headerTitleStyle: styles.headerTitle,
           headerStyle: styles.headerBar,
           headerRight: () => (
             <View style={styles.headerRight}>
-              <TouchableOpacity onPress={() => router.push('/(client)/sync-reports')}>
+              <TouchableOpacity
+                onPress={() => router.push('/(client)/sync-reports')}
+              >
                 <Files size={22} color="#1a1a1a" />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setFiltersVisible(v => !v)}>
@@ -185,7 +196,9 @@ export default function ApplicationsScreen() {
                   <Funnel size={22} color="#1a1a1a" />
                 )}
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => router.push('/(client)/settings')}>
+              <TouchableOpacity
+                onPress={() => router.push('/(client)/settings')}
+              >
                 <Gear size={22} color="#1a1a1a" />
               </TouchableOpacity>
             </View>
@@ -299,6 +312,7 @@ export default function ApplicationsScreen() {
         </View>
       ) : (
         <SectionList<UserOffer, Section>
+          ref={sectionListRef}
           sections={sections}
           keyExtractor={item => item.user_offer_id}
           renderItem={({ item }) => <OfferCard offer={item} />}
@@ -311,12 +325,27 @@ export default function ApplicationsScreen() {
           refreshing={isFetching && !isLoading}
           onRefresh={refetch}
           stickySectionHeadersEnabled={false}
+          onScroll={e => setShowScrollTop(e.nativeEvent.contentOffset.y > 200)}
+          scrollEventThrottle={16}
           ListEmptyComponent={
             <View style={styles.centered}>
               <Text style={styles.messageText}>No applications yet.</Text>
             </View>
           }
         />
+      )}
+
+      {showScrollTop && (
+        <TouchableOpacity
+          onPress={() =>
+            sectionListRef.current
+              ?.getScrollResponder()
+              ?.scrollTo({ y: 0, animated: true })
+          }
+          style={styles.scrollTopButton}
+        >
+          <ArrowCircleUp size={28} color="#1a1a1a" />
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -428,5 +457,21 @@ const styles = StyleSheet.create({
   unspecifiedText: {
     color: '#6b7280',
     fontSize: 15,
+  },
+  scrollTopButton: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
