@@ -5,10 +5,10 @@ import { useAuthStore } from '../src/store/authStore'
 
 export default function Index() {
   const router = useRouter()
-  const { token, role } = useAuthStore()
+  const { token, role, hydrated } = useAuthStore()
 
   useEffect(() => {
-    if (token === null) return
+    if (!hydrated) return
     if (!token) {
       router.replace('/(auth)/login')
     } else if (role === 'agent') {
@@ -16,7 +16,7 @@ export default function Index() {
     } else {
       router.replace('/(client)/applications')
     }
-  }, [token, role])
+  }, [hydrated, token, role])
 
   return (
     <View style={styles.container}>

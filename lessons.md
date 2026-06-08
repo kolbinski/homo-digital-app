@@ -5,6 +5,7 @@
 - Downgrading SDK: `npm install expo@~54.0.0 --legacy-peer-deps` then manually pin all native modules to SDK 54 versions (npx expo install --fix fails without --legacy-peer-deps)
 - **After any SDK downgrade, always run `npx expo install react react-native`** — this pins them to the exact versions Expo expects; `^` ranges left in package.json will resolve to newer versions that cause mismatch warnings
 - SDK downgrade requires manual install of all mismatched packages — check `npx expo-doctor` output for the list
+- **Auth hydration pattern: always use a `hydrated: boolean` flag in Zustand** — `token: null` is ambiguous (could mean "not yet loaded" or "no token"); without a flag, index.tsx blocks forever on first launch. Set `hydrated: true` in both the success and no-token branches of `hydrate()`, and in the catch block. Gate navigation on `if (!hydrated) return`, not `if (token === null) return`
 - **NativeWind v4 is incompatible with Expo SDK 54 — do not use.** Babel peer dependency conflicts between react-native-reanimated (requires RN 0.83-0.86) and SDK 54 (uses RN 0.81.5) cannot be cleanly resolved
 - **Use React Native StyleSheet for all styling** — it is the stable, zero-dependency approach for SDK 54
 - StatusSheet color pattern: define STATUS_BG and STATUS_TEXT as plain hex string Record maps, apply via style prop — no className needed

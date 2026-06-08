@@ -7,6 +7,7 @@ interface AuthState {
   token: string | null
   role: Role | null
   userId: string | null
+  hydrated: boolean
   setAuth: (token: string, role: Role, userId?: string) => void
   clearAuth: () => void
   hydrate: () => Promise<void>
@@ -20,6 +21,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   token: null,
   role: null,
   userId: null,
+  hydrated: false,
 
   setAuth: async (token, role, userId) => {
     await SecureStore.setItemAsync(TOKEN_KEY, token)
@@ -41,10 +43,12 @@ export const useAuthStore = create<AuthState>((set) => ({
       const role = await SecureStore.getItemAsync(ROLE_KEY) as Role | null
       const userId = await SecureStore.getItemAsync(USER_ID_KEY)
       if (token && role) {
-        set({ token, role, userId })
+        set({ token, role, userId, hydrated: true })
+      } else {
+        set({ token: '', role: null, userId: null, hydrated: true })
       }
     } catch {
-      // SecureStore unavailable (web/dev) — stay unauthenticated
+      set({ token: '', role: null, userId: null, hydrated: true })
     }
   },
 }))
