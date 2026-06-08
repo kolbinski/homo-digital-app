@@ -38,6 +38,13 @@
 - **Stack.Screen inside a screen component overrides root layout options** — root layout can use `headerShown: false` globally; individual screens opt in by rendering `<Stack.Screen options={{ headerShown: true, ... }}>` in their return
 - **phosphor-react-native requires react-native-svg** — install both: `npx expo install react-native-svg && npm install phosphor-react-native --legacy-peer-deps`
 
+## Push Notifications
+- **Always request permission before calling getExpoPushTokenAsync()** — calling getExpoPushTokenAsync() without granted permission throws on iOS
+- **Device.isDevice guard is mandatory** — getExpoPushTokenAsync() throws on simulators; always return early when !Device.isDevice
+- **Push token registration is non-critical** — wrap fetch in try/catch so a failed POST /v1/push-tokens never breaks the login flow
+- **setNotificationHandler must be called at module level** — call it in _layout.tsx outside the component so it's set before any notification arrives
+- **EAS build required for push testing on device** — Expo Go does not support push notifications in production; use EAS build or development build
+
 ## General
 - Test on physical device early — simulator misses many native behaviors
 - EAS build needed for push notifications testing

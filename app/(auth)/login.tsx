@@ -5,6 +5,7 @@ import {
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useAuthStore } from '../../src/store/authStore'
+import { registerPushToken } from '../../src/utils/registerPushToken'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -41,6 +42,7 @@ export default function LoginScreen() {
       await setAuth(token, role, user_id ?? agent_id)
       const { userId } = useAuthStore.getState()
       console.log('userId from store:', userId)
+      await registerPushToken(API_URL!, token)
       if (role === 'agent') {
         router.replace('/(agent)/dashboard')
       } else {
