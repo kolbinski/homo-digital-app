@@ -11,7 +11,7 @@ import {
 } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { Stack, useRouter } from 'expo-router'
-import { SignOut } from 'phosphor-react-native'
+import { Funnel, SignOut, X } from 'phosphor-react-native'
 import { useAuthStore } from '../../src/store/authStore'
 import { useApplications } from '../../src/hooks/useApplications'
 import { OfferCard } from '../../src/components/OfferCard'
@@ -38,6 +38,19 @@ function formatDateLabel(d: Date): string {
   return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`
 }
 
+function formatSectionTitle(d: Date): string {
+  const now = new Date()
+  const yesterday = new Date(now)
+  yesterday.setDate(yesterday.getDate() - 1)
+  const sameDay = (a: Date, b: Date) =>
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  if (sameDay(d, now)) return 'Today'
+  if (sameDay(d, yesterday)) return 'Yesterday'
+  return formatDateLabel(d)
+}
+
 type Section = { title: string; data: UserOffer[] }
 
 function groupByDate(offers: UserOffer[]): Section[] {
@@ -56,7 +69,7 @@ function groupByDate(offers: UserOffer[]): Section[] {
   }
 
   return Object.entries(map).map(([, items]) => ({
-    title: formatDateLabel(new Date(items[0].applied_at ?? items[0].matched_at)),
+    title: formatSectionTitle(new Date(items[0].applied_at ?? items[0].matched_at)),
     data: items,
   }))
 }
@@ -84,6 +97,7 @@ export default function ApplicationsScreen() {
   const [source, setSource] = useState<OfferSource>('all')
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [showPicker, setShowPicker] = useState(false)
+  const [filtersVisible, setFiltersVisible] = useState(false)
 
   useEffect(() => {
     if (hydrated && (!token || role !== 'client')) {
@@ -100,6 +114,51 @@ export default function ApplicationsScreen() {
 
   const sections = groupByDate(data ?? [])
 
+  const filtersHeader = (
+    <View style={styles.filters}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+        {STATUS_OPTIONS.map(opt => (
+          <FilterPill
+            key={opt.value}
+            label={opt.label}
+            active={status === opt.value}
+            onPress={() => setStatus(opt.value)}
+          />
+        ))}
+      </ScrollView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.filterRow, styles.filterRowTop]}>
+        {SOURCE_OPTIONS.map(opt => (
+          <FilterPill
+            key={opt.value}
+            label={opt.label}
+            active={source === opt.value}
+            onPress={() => setSource(opt.value)}
+          />
+        ))}
+      </ScrollView>
+      <View style={[styles.filterRow, styles.filterRowTop]}>
+        <TouchableOpacity
+          style={[styles.pill, selectedDate ? styles.pillActive : null]}
+          onPress={() => setShowPicker(true)}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.pillText, selectedDate ? styles.pillTextActive : null]}>
+            {selectedDate ? formatDateLabel(selectedDate) : 'Last 30 days'}
+          </Text>
+        </TouchableOpacity>
+        {selectedDate && (
+          <TouchableOpacity
+            style={styles.clearDate}
+            onPress={() => setSelectedDate(null)}
+            activeOpacity={0.7}
+          >
+            <X size={14} color="#6b7280" />
+          </TouchableOpacity>
+        )}
+      </View>
+    </View>
+  )
+
   if (!hydrated) {
     return (
       <View style={styles.centered}>
@@ -115,55 +174,23 @@ export default function ApplicationsScreen() {
         headerTitle: 'My Applications',
         headerTitleStyle: styles.headerTitle,
         headerStyle: styles.headerBar,
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => setFiltersVisible(v => !v)}
+            style={styles.headerButtonLeft}
+          >
+            {filtersVisible
+              ? <X size={22} color="#1a1a1a" />
+              : <Funnel size={22} color="#1a1a1a" />
+            }
+          </TouchableOpacity>
+        ),
         headerRight: () => (
           <TouchableOpacity onPress={handleLogout} style={styles.headerButton}>
             <SignOut size={22} color="#1a1a1a" />
           </TouchableOpacity>
         ),
       }} />
-
-      <View style={styles.filters}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
-          {STATUS_OPTIONS.map(opt => (
-            <FilterPill
-              key={opt.value}
-              label={opt.label}
-              active={status === opt.value}
-              onPress={() => setStatus(opt.value)}
-            />
-          ))}
-        </ScrollView>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.filterRow, styles.filterRowTop]}>
-          {SOURCE_OPTIONS.map(opt => (
-            <FilterPill
-              key={opt.value}
-              label={opt.label}
-              active={source === opt.value}
-              onPress={() => setSource(opt.value)}
-            />
-          ))}
-        </ScrollView>
-        <View style={[styles.filterRow, styles.filterRowTop]}>
-          <TouchableOpacity
-            style={[styles.pill, selectedDate ? styles.pillActive : null]}
-            onPress={() => setShowPicker(true)}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.pillText, selectedDate ? styles.pillTextActive : null]}>
-              {selectedDate ? formatDateLabel(selectedDate) : 'Last 30 days'}
-            </Text>
-          </TouchableOpacity>
-          {selectedDate && (
-            <TouchableOpacity
-              style={styles.clearDate}
-              onPress={() => setSelectedDate(null)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.clearDateText}>×</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
 
       <Modal visible={showPicker} transparent animationType="slide">
         <View style={styles.modalOverlay}>
@@ -205,6 +232,7 @@ export default function ApplicationsScreen() {
               <Text style={styles.sectionHeaderText}>{section.title}</Text>
             </View>
           )}
+          ListHeaderComponent={filtersVisible ? filtersHeader : null}
           contentContainerStyle={styles.listContent}
           refreshing={isFetching && !isLoading}
           onRefresh={refetch}
@@ -235,6 +263,9 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     marginRight: 8,
+  },
+  headerButtonLeft: {
+    marginLeft: 16,
   },
   filters: {
     backgroundColor: '#fff',
@@ -278,11 +309,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#f0f0f0',
     backgroundColor: '#fff',
-  },
-  clearDateText: {
-    fontSize: 16,
-    color: '#4a4a4a',
-    lineHeight: 18,
   },
   sectionHeader: {
     paddingHorizontal: 16,
