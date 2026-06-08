@@ -12,10 +12,11 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Stack, useRouter } from 'expo-router';
-import { Funnel, SignOut, X } from 'phosphor-react-native';
+import { Funnel, Gear, X } from 'phosphor-react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { useApplications } from '../../src/hooks/useApplications';
 import { OfferCard } from '../../src/components/OfferCard';
+import { LogoutModal } from '../../src/components/LogoutModal';
 import type {
   OfferSource,
   OfferStatus,
@@ -185,88 +186,19 @@ export default function ApplicationsScreen() {
                   <Funnel size={22} color="#1a1a1a" />
                 )}
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleLogout}>
-                <SignOut size={22} color="#1a1a1a" />
+              <TouchableOpacity onPress={() => router.push('/(client)/settings')}>
+                <Gear size={22} color="#1a1a1a" />
               </TouchableOpacity>
             </View>
           ),
         }}
       />
 
-      <Modal
+      <LogoutModal
         visible={showLogoutModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowLogoutModal(false)}
-      >
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          activeOpacity={1}
-          onPress={() => setShowLogoutModal(false)}
-        >
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={() => {}}
-            style={{
-              backgroundColor: '#fff',
-              borderRadius: 12,
-              padding: 24,
-              width: '80%',
-              gap: 16,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 17,
-                fontWeight: '600',
-                color: '#1a1a1a',
-                textAlign: 'center',
-              }}
-            >
-              Logout
-            </Text>
-            <Text
-              style={{ fontSize: 15, color: '#6b7280', textAlign: 'center' }}
-            >
-              Are you sure you want to logout?
-            </Text>
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-              <TouchableOpacity
-                onPress={() => setShowLogoutModal(false)}
-                style={{
-                  flex: 1,
-                  padding: 12,
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: '#e5e7eb',
-                  alignItems: 'center',
-                }}
-              >
-                <Text style={{ color: '#1a1a1a', fontWeight: '500' }}>No</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={confirmLogout}
-                style={{
-                  flex: 1,
-                  padding: 12,
-                  borderRadius: 8,
-                  backgroundColor: '#ef4444',
-                  alignItems: 'center',
-                }}
-              >
-                <Text style={{ color: '#fff', fontWeight: '500' }}>
-                  Yes, logout
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={confirmLogout}
+      />
 
       <Modal visible={showPicker} transparent animationType="slide">
         <View style={styles.modalOverlay}>
