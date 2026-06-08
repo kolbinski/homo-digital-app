@@ -29,24 +29,23 @@ const STATUS_TEXT: Record<string, string> = {
   client_withdrawn: '#b91c1c',
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso)
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
-}
-
 function SalaryLine({ entry }: { entry: SalaryEntry }) {
-  const deltaPositive = entry.delta > 0
-  const deltaColor = deltaPositive ? '#f97316' : '#dc2626'
+  const hasRange = entry.min != null && entry.max != null
+  const hasDelta = entry.delta != null && entry.delta !== 0
+  const deltaPositive = (entry.delta ?? 0) > 0
   const deltaSign = deltaPositive ? '+' : ''
+  const showNormalized = entry.currency !== 'PLN' && entry.delta_normalized != null && entry.delta_normalized !== 0
+
+  if (!hasRange) return null
 
   return (
     <Text style={styles.salaryLine}>
-      {entry.currency} {entry.type}{' '}
-      {formatNum(entry.min)} – {formatNum(entry.max)}{' '}
-      {entry.delta !== 0 && (
-        <Text style={{ color: deltaColor }}>
-          {deltaSign}{formatNum(entry.delta)}
+      {[entry.currency, entry.type].filter(Boolean).join(' ')}{' '}
+      {formatNum(entry.min!)} – {formatNum(entry.max!)}
+      {hasDelta && (
+        <Text style={styles.deltaText}>
+          {'  '}{deltaSign}{formatNum(entry.delta!)}
+          {showNormalized ? ` (${formatNum(entry.delta_normalized!)} PLN)` : ''}
         </Text>
       )}
     </Text>
@@ -66,25 +65,23 @@ export function OfferCard({ offer }: Props) {
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.7}
-      onPress={() => Linking.openURL(offer.offer_url)}
+      onPress={() => offer.offer_url ? Linking.openURL(offer.offer_url) : undefined}
     >
       <View style={styles.cardHeader}>
         <View style={styles.cardTitleBlock}>
           <Text style={styles.offerTitle} numberOfLines={2}>
             {offer.offer_title}
           </Text>
-          <Text style={styles.company}>@ {offer.company_name}</Text>
+          <Text style={styles.company}>@ {offer.offer_company}</Text>
         </View>
         <View style={[styles.badge, { backgroundColor: badgeBg }]}>
           <Text style={[styles.badgeText, { color: badgeText }]}>{statusLabel}</Text>
         </View>
       </View>
 
-      <Text style={styles.workModel}>
-        {offer.work_model}{offer.city ? ` · ${offer.city}` : ''}
-      </Text>
+      <Text style={styles.score}>{offer.claude_score}/100</Text>
 
-      {offer.salary.length > 0 && (
+      {offer.salary?.length > 0 && (
         <View style={styles.salaryBlock}>
           {offer.salary.map((entry, i) => (
             <SalaryLine key={i} entry={entry} />
@@ -92,11 +89,10 @@ export function OfferCard({ offer }: Props) {
         </View>
       )}
 
-      {offer.role_fit ? (
-        <Text style={styles.roleFit} numberOfLines={2}>{offer.role_fit}</Text>
+      {offer.claude_role_fit ? (
+        <Text style={styles.roleFit} numberOfLines={2}>{offer.claude_role_fit}</Text>
       ) : null}
 
-      <Text style={styles.date}>{formatDate(offer.created_at)}</Text>
     </TouchableOpacity>
   )
 }
@@ -140,10 +136,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-  workModel: {
-    fontSize: 14,
-    color: '#4a4a4a',
-    marginTop: 4,
+  score: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginTop: 6,
   },
   salaryBlock: {
     marginTop: 8,
@@ -153,12 +150,10 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     marginTop: 2,
   },
-  roleFit: {
-    fontSize: 12,
-    color: '#4a4a4a',
-    marginTop: 8,
+  deltaText: {
+    color: '#f97316',
   },
-  date: {
+  roleFit: {
     fontSize: 12,
     color: '#4a4a4a',
     marginTop: 8,

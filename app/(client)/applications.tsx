@@ -1,34 +1,47 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 import {
-  View, Text, FlatList, ActivityIndicator, TouchableOpacity,
-  ScrollView, StyleSheet,
-} from 'react-native'
-import { Stack, useRouter } from 'expo-router'
-import { SignOut } from 'phosphor-react-native'
-import { useAuthStore } from '../../src/store/authStore'
-import { useApplications } from '../../src/hooks/useApplications'
-import { OfferCard } from '../../src/components/OfferCard'
-import type { OfferSource, OfferStatus, UserOffer } from '../../src/types/userOffer'
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
+import { Stack, useRouter } from 'expo-router';
+import { SignOut } from 'phosphor-react-native';
+import { useAuthStore } from '../../src/store/authStore';
+import { useApplications } from '../../src/hooks/useApplications';
+import { OfferCard } from '../../src/components/OfferCard';
+import type {
+  OfferSource,
+  OfferStatus,
+  UserOffer,
+} from '../../src/types/userOffer';
 
 const STATUS_OPTIONS: { label: string; value: OfferStatus }[] = [
   { label: 'Applied', value: 'applied' },
-  { label: 'Offer', value: 'offer_received' },
+  { label: 'Offer received', value: 'offer_received' },
   { label: 'Accepted', value: 'accepted' },
-  { label: 'Rejected', value: 'recruiter_rejected' },
-  { label: 'Withdrawn', value: 'agent_withdrawn' },
+  { label: 'Rejected by recruiter', value: 'recruiter_rejected' },
+  { label: 'Withdrawn (agent)', value: 'agent_withdrawn' },
   { label: 'Withdrawn (me)', value: 'client_withdrawn' },
-]
+];
 
 const SOURCE_OPTIONS: { label: string; value: OfferSource }[] = [
   { label: 'All', value: 'all' },
   { label: 'JustJoin', value: 'justjoin' },
   { label: 'NoFluffJobs', value: 'nofluffjobs' },
-]
+];
 
-function FilterPill({ label, active, onPress }: {
-  label: string
-  active: boolean
-  onPress: () => void
+function FilterPill({
+  label,
+  active,
+  onPress,
+}: {
+  label: string;
+  active: boolean;
+  onPress: () => void;
 }) {
   return (
     <TouchableOpacity
@@ -40,53 +53,65 @@ function FilterPill({ label, active, onPress }: {
         {label}
       </Text>
     </TouchableOpacity>
-  )
+  );
 }
 
 export default function ApplicationsScreen() {
-  const router = useRouter()
-  const { token, role, hydrated, clearAuth } = useAuthStore()
-  const [status, setStatus] = useState<OfferStatus>('applied')
-  const [source, setSource] = useState<OfferSource>('all')
+  const router = useRouter();
+  const { token, role, hydrated, clearAuth } = useAuthStore();
+  const [status, setStatus] = useState<OfferStatus>('applied');
+  const [source, setSource] = useState<OfferSource>('all');
 
   useEffect(() => {
     if (hydrated && (!token || role !== 'client')) {
-      router.replace('/(auth)/login')
+      router.replace('/(auth)/login');
     }
-  }, [hydrated, token, role])
+  }, [hydrated, token, role]);
 
-  const { data, isLoading, isError, refetch, isFetching } = useApplications(status, source)
+  const { data, isLoading, isError, refetch, isFetching } = useApplications(
+    status,
+    source,
+  );
 
   const handleLogout = async () => {
-    await clearAuth()
-    router.replace('/(auth)/login')
-  }
+    await clearAuth();
+    router.replace('/(auth)/login');
+  };
 
   if (!hydrated) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color="#1a1a1a" />
       </View>
-    )
+    );
   }
 
   return (
     <View style={styles.root}>
-      <Stack.Screen options={{
-        headerShown: true,
-        headerTitle: 'My Applications',
-        headerTitleStyle: styles.headerTitle,
-        headerStyle: styles.headerBar,
-        headerRight: () => (
-          <TouchableOpacity onPress={handleLogout} style={styles.headerButton}>
-            <SignOut size={22} color="#1a1a1a" />
-          </TouchableOpacity>
-        ),
-      }} />
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerTitle: 'My Applications',
+          headerTitleStyle: styles.headerTitle,
+          headerStyle: styles.headerBar,
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleLogout}
+              style={styles.headerButton}
+            >
+              <SignOut size={22} color="#1a1a1a" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
 
       <View style={styles.filters}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
-          {STATUS_OPTIONS.map((opt) => (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterRow}
+        >
+          {STATUS_OPTIONS.map(opt => (
             <FilterPill
               key={opt.label}
               label={opt.label}
@@ -95,8 +120,12 @@ export default function ApplicationsScreen() {
             />
           ))}
         </ScrollView>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.filterRow, styles.filterRowTop]}>
-          {SOURCE_OPTIONS.map((opt) => (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={[styles.filterRow, styles.filterRowTop]}
+        >
+          {SOURCE_OPTIONS.map(opt => (
             <FilterPill
               key={opt.value}
               label={opt.label}
@@ -113,12 +142,14 @@ export default function ApplicationsScreen() {
         </View>
       ) : isError ? (
         <View style={styles.centered}>
-          <Text style={styles.messageText}>Failed to load. Pull to refresh.</Text>
+          <Text style={styles.messageText}>
+            Failed to load. Pull to refresh.
+          </Text>
         </View>
       ) : (
         <FlatList<UserOffer>
           data={data ?? []}
-          keyExtractor={(item) => item.user_offer_id}
+          keyExtractor={item => item.user_offer_id}
           renderItem={({ item }) => <OfferCard offer={item} />}
           contentContainerStyle={styles.listContent}
           refreshing={isFetching && !isLoading}
@@ -131,7 +162,7 @@ export default function ApplicationsScreen() {
         />
       )}
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -199,4 +230,4 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 32,
   },
-})
+});

@@ -1,24 +1,24 @@
 export interface SalaryEntry {
-  min: number
-  max: number
+  min: number | null
+  max: number | null
   currency: string
-  type: string
-  delta: number
-  delta_normalized: number
+  type: string | null
+  delta: number | null
+  delta_normalized: number | null
 }
 
 export interface UserOffer {
   user_offer_id: string
   offer_title: string
-  company_name: string
-  work_model: string
-  city: string | null
-  salary: SalaryEntry[]
-  claude_score: number
-  role_fit: string
+  offer_company: string
   offer_url: string
+  claude_score: number
+  claude_role_fit: string
+  salary: SalaryEntry[]
+  source: string
   cv_language: string
   status: string
+  matched_at: string
   created_at: string
 }
 
