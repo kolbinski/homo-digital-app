@@ -1,21 +1,26 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
+  Image,
   Modal,
   SectionList,
   ActivityIndicator,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
-} from 'react-native'
-import DateTimePicker from '@react-native-community/datetimepicker'
-import { Stack, useRouter } from 'expo-router'
-import { Funnel, SignOut, X } from 'phosphor-react-native'
-import { useAuthStore } from '../../src/store/authStore'
-import { useApplications } from '../../src/hooks/useApplications'
-import { OfferCard } from '../../src/components/OfferCard'
-import type { OfferSource, OfferStatus, UserOffer } from '../../src/types/userOffer'
+} from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Stack, useRouter } from 'expo-router';
+import { Funnel, SignOut, X } from 'phosphor-react-native';
+import { useAuthStore } from '../../src/store/authStore';
+import { useApplications } from '../../src/hooks/useApplications';
+import { OfferCard } from '../../src/components/OfferCard';
+import type {
+  OfferSource,
+  OfferStatus,
+  UserOffer,
+} from '../../src/types/userOffer';
 
 const STATUS_OPTIONS: { label: string; value: OfferStatus }[] = [
   { label: 'Applied', value: 'applied' },
@@ -24,60 +29,79 @@ const STATUS_OPTIONS: { label: string; value: OfferStatus }[] = [
   { label: 'Rejected by recruiter', value: 'recruiter_rejected' },
   { label: 'Withdrawn (agent)', value: 'agent_withdrawn' },
   { label: 'Withdrawn (me)', value: 'client_withdrawn' },
-]
+];
 
 const SOURCE_OPTIONS: { label: string; value: OfferSource }[] = [
   { label: 'All', value: 'all' },
   { label: 'JustJoin', value: 'justjoin' },
   { label: 'NoFluffJobs', value: 'nofluffjobs' },
-]
+];
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 
 function formatDateLabel(d: Date): string {
-  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 function formatSectionTitle(d: Date): string {
-  const now = new Date()
-  const yesterday = new Date(now)
-  yesterday.setDate(yesterday.getDate() - 1)
+  const now = new Date();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
   const sameDay = (a: Date, b: Date) =>
     a.getFullYear() === b.getFullYear() &&
     a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  if (sameDay(d, now)) return 'Today'
-  if (sameDay(d, yesterday)) return 'Yesterday'
-  return formatDateLabel(d)
+    a.getDate() === b.getDate();
+  if (sameDay(d, now)) return 'Today';
+  if (sameDay(d, yesterday)) return 'Yesterday';
+  return formatDateLabel(d);
 }
 
-type Section = { title: string; data: UserOffer[] }
+type Section = { title: string; data: UserOffer[] };
 
 function groupByDate(offers: UserOffer[]): Section[] {
   const sorted = [...offers].sort((a, b) => {
-    const aTime = new Date(a.applied_at ?? a.matched_at).getTime()
-    const bTime = new Date(b.applied_at ?? b.matched_at).getTime()
-    return bTime - aTime
-  })
+    const aTime = new Date(a.applied_at ?? a.matched_at).getTime();
+    const bTime = new Date(b.applied_at ?? b.matched_at).getTime();
+    return bTime - aTime;
+  });
 
-  const map: Record<string, UserOffer[]> = {}
+  const map: Record<string, UserOffer[]> = {};
   for (const offer of sorted) {
-    const d = new Date(offer.applied_at ?? offer.matched_at)
-    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
-    if (!map[key]) map[key] = []
-    map[key].push(offer)
+    const d = new Date(offer.applied_at ?? offer.matched_at);
+    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    if (!map[key]) map[key] = [];
+    map[key].push(offer);
   }
 
   return Object.entries(map).map(([, items]) => ({
-    title: formatSectionTitle(new Date(items[0].applied_at ?? items[0].matched_at)),
+    title: formatSectionTitle(
+      new Date(items[0].applied_at ?? items[0].matched_at),
+    ),
     data: items,
-  }))
+  }));
 }
 
-function FilterPill({ label, active, onPress }: {
-  label: string
-  active: boolean
-  onPress: () => void
+function FilterPill({
+  label,
+  active,
+  onPress,
+}: {
+  label: string;
+  active: boolean;
+  onPress: () => void;
 }) {
   return (
     <TouchableOpacity
@@ -85,69 +109,89 @@ function FilterPill({ label, active, onPress }: {
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <Text style={[styles.pillText, active && styles.pillTextActive]}>{label}</Text>
+      <Text style={[styles.pillText, active && styles.pillTextActive]}>
+        {label}
+      </Text>
     </TouchableOpacity>
-  )
+  );
 }
 
 export default function ApplicationsScreen() {
-  const router = useRouter()
-  const { token, role, hydrated, clearAuth } = useAuthStore()
-  const [status, setStatus] = useState<OfferStatus>('applied')
-  const [source, setSource] = useState<OfferSource>('all')
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [showPicker, setShowPicker] = useState(false)
-  const [filtersVisible, setFiltersVisible] = useState(false)
-  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const router = useRouter();
+  const { token, role, hydrated, clearAuth } = useAuthStore();
+  const [status, setStatus] = useState<OfferStatus>('applied');
+  const [source, setSource] = useState<OfferSource>('all');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showPicker, setShowPicker] = useState(false);
+  const [filtersVisible, setFiltersVisible] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     if (hydrated && (!token || role !== 'client')) {
-      router.replace('/(auth)/login')
+      router.replace('/(auth)/login');
     }
-  }, [hydrated, token, role])
+  }, [hydrated, token, role]);
 
-  const { data, isLoading, isError, refetch, isFetching } = useApplications(status, source, selectedDate)
+  const { data, isLoading, isError, refetch, isFetching } = useApplications(
+    status,
+    source,
+    selectedDate,
+  );
 
-  const handleLogout = () => setShowLogoutModal(true)
+  const handleLogout = () => setShowLogoutModal(true);
 
   const confirmLogout = async () => {
-    setShowLogoutModal(false)
-    await clearAuth()
-    router.replace('/(auth)/login')
-  }
+    setShowLogoutModal(false);
+    await clearAuth();
+    router.replace('/(auth)/login');
+  };
 
-  const sections = groupByDate(data ?? [])
+  const sections = groupByDate(data ?? []);
 
   if (!hydrated) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color="#1a1a1a" />
       </View>
-    )
+    );
   }
 
   return (
     <View style={styles.root}>
-      <Stack.Screen options={{
-        headerShown: true,
-        headerBackVisible: false,
-        headerTitle: 'My Applications',
-        headerTitleStyle: styles.headerTitle,
-        headerStyle: styles.headerBar,
-        headerRight: () => (
-          <View style={styles.headerRight}>
-            <TouchableOpacity onPress={() => setFiltersVisible(v => !v)}>
-              {filtersVisible
-                ? <X size={22} color="#1a1a1a" />
-                : <Funnel size={22} color="#1a1a1a" />
-              }
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleLogout}>
-              <SignOut size={22} color="#1a1a1a" />
-            </TouchableOpacity>
-          </View>
-        ),
-      }} />
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerBackVisible: false,
+          headerTitle: 'My Applications',
+          headerLeft: () => (
+            <Image
+              source={require('../../assets/logo.png')}
+              style={{
+                width: 32,
+                height: 32,
+                marginRight: 12,
+              }}
+              resizeMode="contain"
+            />
+          ),
+          headerTitleStyle: styles.headerTitle,
+          headerStyle: styles.headerBar,
+          headerRight: () => (
+            <View style={styles.headerRight}>
+              <TouchableOpacity onPress={() => setFiltersVisible(v => !v)}>
+                {filtersVisible ? (
+                  <X size={22} color="#1a1a1a" />
+                ) : (
+                  <Funnel size={22} color="#1a1a1a" />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleLogout}>
+                <SignOut size={22} color="#1a1a1a" />
+              </TouchableOpacity>
+            </View>
+          ),
+        }}
+      />
 
       <Modal
         visible={showLogoutModal}
@@ -156,33 +200,68 @@ export default function ApplicationsScreen() {
         onRequestClose={() => setShowLogoutModal(false)}
       >
         <TouchableOpacity
-          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
           activeOpacity={1}
           onPress={() => setShowLogoutModal(false)}
         >
           <TouchableOpacity
             activeOpacity={1}
             onPress={() => {}}
-            style={{ backgroundColor: '#fff', borderRadius: 12, padding: 24, width: '80%', gap: 16 }}
+            style={{
+              backgroundColor: '#fff',
+              borderRadius: 12,
+              padding: 24,
+              width: '80%',
+              gap: 16,
+            }}
           >
-            <Text style={{ fontSize: 17, fontWeight: '600', color: '#1a1a1a', textAlign: 'center' }}>
+            <Text
+              style={{
+                fontSize: 17,
+                fontWeight: '600',
+                color: '#1a1a1a',
+                textAlign: 'center',
+              }}
+            >
               Logout
             </Text>
-            <Text style={{ fontSize: 15, color: '#6b7280', textAlign: 'center' }}>
+            <Text
+              style={{ fontSize: 15, color: '#6b7280', textAlign: 'center' }}
+            >
               Are you sure you want to logout?
             </Text>
             <View style={{ flexDirection: 'row', gap: 12 }}>
               <TouchableOpacity
                 onPress={() => setShowLogoutModal(false)}
-                style={{ flex: 1, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#e5e7eb', alignItems: 'center' }}
+                style={{
+                  flex: 1,
+                  padding: 12,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: '#e5e7eb',
+                  alignItems: 'center',
+                }}
               >
                 <Text style={{ color: '#1a1a1a', fontWeight: '500' }}>No</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={confirmLogout}
-                style={{ flex: 1, padding: 12, borderRadius: 8, backgroundColor: '#ef4444', alignItems: 'center' }}
+                style={{
+                  flex: 1,
+                  padding: 12,
+                  borderRadius: 8,
+                  backgroundColor: '#ef4444',
+                  alignItems: 'center',
+                }}
               >
-                <Text style={{ color: '#fff', fontWeight: '500' }}>Yes, logout</Text>
+                <Text style={{ color: '#fff', fontWeight: '500' }}>
+                  Yes, logout
+                </Text>
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -193,10 +272,15 @@ export default function ApplicationsScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             <TouchableOpacity
-              onPress={() => { setSelectedDate(null); setShowPicker(false) }}
+              onPress={() => {
+                setSelectedDate(null);
+                setShowPicker(false);
+              }}
               style={styles.unspecifiedButton}
             >
-              <Text style={styles.unspecifiedText}>Unspecified (last 30 days)</Text>
+              <Text style={styles.unspecifiedText}>
+                Unspecified (last 30 days)
+              </Text>
             </TouchableOpacity>
             <DateTimePicker
               value={selectedDate ?? new Date()}
@@ -204,7 +288,10 @@ export default function ApplicationsScreen() {
               display="inline"
               maximumDate={new Date()}
               onChange={(_, date) => {
-                if (date) { setSelectedDate(date); setShowPicker(false) }
+                if (date) {
+                  setSelectedDate(date);
+                  setShowPicker(false);
+                }
               }}
             />
           </View>
@@ -213,7 +300,11 @@ export default function ApplicationsScreen() {
 
       {filtersVisible && (
         <View style={styles.filtersPanel}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterRow}
+          >
             {STATUS_OPTIONS.map(opt => (
               <FilterPill
                 key={opt.value}
@@ -223,7 +314,11 @@ export default function ApplicationsScreen() {
               />
             ))}
           </ScrollView>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterRow}
+          >
             {SOURCE_OPTIONS.map(opt => (
               <FilterPill
                 key={opt.value}
@@ -239,7 +334,12 @@ export default function ApplicationsScreen() {
               onPress={() => setShowPicker(true)}
               activeOpacity={0.7}
             >
-              <Text style={[styles.pillText, selectedDate ? styles.pillTextActive : null]}>
+              <Text
+                style={[
+                  styles.pillText,
+                  selectedDate ? styles.pillTextActive : null,
+                ]}
+              >
                 {selectedDate ? formatDateLabel(selectedDate) : 'Last 30 days'}
               </Text>
             </TouchableOpacity>
@@ -262,7 +362,9 @@ export default function ApplicationsScreen() {
         </View>
       ) : isError ? (
         <View style={styles.centered}>
-          <Text style={styles.messageText}>Failed to load. Pull to refresh.</Text>
+          <Text style={styles.messageText}>
+            Failed to load. Pull to refresh.
+          </Text>
         </View>
       ) : (
         <SectionList<UserOffer, Section>
@@ -286,7 +388,7 @@ export default function ApplicationsScreen() {
         />
       )}
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -396,4 +498,4 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     fontSize: 15,
   },
-})
+});
