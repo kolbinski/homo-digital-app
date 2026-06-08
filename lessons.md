@@ -31,6 +31,13 @@
 - Salary delta: orange (#f97316) for positive, red (#dc2626) for negative
 - Dates: format manually (D MMM YYYY) — no date-fns installed, keep bundle small
 
+## Auth / Navigation
+- **Never call router.replace() during render** — causes "setState during render" warning/crash. Always wrap in useEffect: `useEffect(() => { if (hydrated && !token) router.replace(...) }, [hydrated, token])`
+- **All hooks must be called before any conditional return** — React rules of hooks. If auth guard has an early return, move useState/useEffect/useQuery above it, not after
+- **clearAuth() must set `hydrated: true`** — after logout, index.tsx gates on `hydrated`; if clearAuth only nulls the token without setting hydrated, the loader hangs on re-entry
+- **Stack.Screen inside a screen component overrides root layout options** — root layout can use `headerShown: false` globally; individual screens opt in by rendering `<Stack.Screen options={{ headerShown: true, ... }}>` in their return
+- **phosphor-react-native requires react-native-svg** — install both: `npx expo install react-native-svg && npm install phosphor-react-native --legacy-peer-deps`
+
 ## General
 - Test on physical device early — simulator misses many native behaviors
 - EAS build needed for push notifications testing

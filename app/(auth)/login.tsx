@@ -36,8 +36,11 @@ export default function LoginScreen() {
         return
       }
       const data = await res.json()
+      console.log('Login response:', JSON.stringify(data))
       const { token, role, user_id, agent_id } = data
       await setAuth(token, role, user_id ?? agent_id)
+      const { userId } = useAuthStore.getState()
+      console.log('userId from store:', userId)
       if (role === 'agent') {
         router.replace('/(agent)/dashboard')
       } else {

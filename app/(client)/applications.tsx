@@ -1,21 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   View, Text, FlatList, ActivityIndicator, TouchableOpacity,
   ScrollView, StyleSheet,
 } from 'react-native'
-import { useRouter } from 'expo-router'
+import { Stack, useRouter } from 'expo-router'
+import { SignOut } from 'phosphor-react-native'
 import { useAuthStore } from '../../src/store/authStore'
 import { useApplications } from '../../src/hooks/useApplications'
 import { OfferCard } from '../../src/components/OfferCard'
-import type { OfferStatus, OfferSource, UserOffer } from '../../src/types/userOffer'
+import type { OfferSource, OfferStatus, UserOffer } from '../../src/types/userOffer'
 
-const STATUS_OPTIONS: { label: string; value: OfferStatus | undefined }[] = [
-  { label: 'All', value: undefined },
+const STATUS_OPTIONS: { label: string; value: OfferStatus }[] = [
   { label: 'Applied', value: 'applied' },
   { label: 'Offer', value: 'offer_received' },
   { label: 'Accepted', value: 'accepted' },
   { label: 'Rejected', value: 'recruiter_rejected' },
   { label: 'Withdrawn', value: 'agent_withdrawn' },
+  { label: 'Withdrawn (me)', value: 'client_withdrawn' },
 ]
 
 const SOURCE_OPTIONS: { label: string; value: OfferSource }[] = [
@@ -44,22 +45,44 @@ function FilterPill({ label, active, onPress }: {
 
 export default function ApplicationsScreen() {
   const router = useRouter()
-  const { token, role } = useAuthStore()
-  const [status, setStatus] = useState<OfferStatus | undefined>(undefined)
+  const { token, role, hydrated, clearAuth } = useAuthStore()
+  const [status, setStatus] = useState<OfferStatus>('applied')
   const [source, setSource] = useState<OfferSource>('all')
 
-  if (!token || role !== 'client') {
-    router.replace('/(auth)/login')
-    return null
-  }
+  useEffect(() => {
+    if (hydrated && (!token || role !== 'client')) {
+      router.replace('/(auth)/login')
+    }
+  }, [hydrated, token, role])
 
   const { data, isLoading, isError, refetch, isFetching } = useApplications(status, source)
 
+  const handleLogout = async () => {
+    await clearAuth()
+    router.replace('/(auth)/login')
+  }
+
+  if (!hydrated) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#1a1a1a" />
+      </View>
+    )
+  }
+
   return (
     <View style={styles.root}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Applications</Text>
-      </View>
+      <Stack.Screen options={{
+        headerShown: true,
+        headerTitle: 'My Applications',
+        headerTitleStyle: styles.headerTitle,
+        headerStyle: styles.headerBar,
+        headerRight: () => (
+          <TouchableOpacity onPress={handleLogout} style={styles.headerButton}>
+            <SignOut size={22} color="#1a1a1a" />
+          </TouchableOpacity>
+        ),
+      }} />
 
       <View style={styles.filters}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
@@ -116,18 +139,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f9f9f9',
   },
-  header: {
+  headerBar: {
     backgroundColor: '#fff',
-    paddingTop: 56,
-    paddingBottom: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: '700',
     color: '#1a1a1a',
+  },
+  headerButton: {
+    marginRight: 8,
   },
   filters: {
     backgroundColor: '#fff',

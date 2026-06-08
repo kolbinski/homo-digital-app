@@ -34,7 +34,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     await SecureStore.deleteItemAsync(TOKEN_KEY)
     await SecureStore.deleteItemAsync(ROLE_KEY)
     await SecureStore.deleteItemAsync(USER_ID_KEY)
-    set({ token: null, role: null, userId: null })
+    set({ token: '', role: null, userId: null, hydrated: true })
   },
 
   hydrate: async () => {
