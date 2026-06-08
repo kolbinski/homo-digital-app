@@ -142,7 +142,7 @@ export function OfferCard(props: OfferCardProps) {
             </Text>
           </View>
         )}
-        <Text style={styles.titleText} numberOfLines={2}>
+        <Text style={styles.titleText}>
           <Text style={styles.titleBold}>{title}</Text>
           <Text style={styles.titleCompany}>
             {' @\u00A0'}

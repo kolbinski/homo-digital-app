@@ -89,15 +89,23 @@ export default function SyncReportDetailScreen() {
             <View style={styles.section}>
               <TouchableOpacity
                 onPress={() => setWorthApplyingOpen(v => !v)}
-                style={styles.accordionHeader}
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  backgroundColor: '#dcfce7',
+                  padding: 24,
+                }}
               >
-                <Text style={styles.sectionTitle}>
+                <Text
+                  style={{ fontSize: 13, fontWeight: '600', color: '#16a34a' }}
+                >
                   Worth applying ({worthApplying.length})
                 </Text>
                 {worthApplyingOpen ? (
-                  <CaretUp size={14} color="#6b7280" />
+                  <CaretUp size={14} color="#16a34a" />
                 ) : (
-                  <CaretDown size={14} color="#6b7280" />
+                  <CaretDown size={14} color="#16a34a" />
                 )}
               </TouchableOpacity>
               {worthApplyingOpen &&
@@ -111,15 +119,24 @@ export default function SyncReportDetailScreen() {
             <View style={styles.section}>
               <TouchableOpacity
                 onPress={() => setLevelUpOpen(v => !v)}
-                style={styles.accordionHeader}
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  backgroundColor: '#fff7ed',
+                  padding: 24,
+                  marginBottom: levelUpOpen ? 8 : 16,
+                }}
               >
-                <Text style={styles.sectionTitle}>
+                <Text
+                  style={{ fontSize: 13, fontWeight: '600', color: '#ea580c' }}
+                >
                   Level up & earn more ({levelUp.length})
                 </Text>
                 {levelUpOpen ? (
-                  <CaretUp size={14} color="#6b7280" />
+                  <CaretUp size={14} color="#ea580c" />
                 ) : (
-                  <CaretDown size={14} color="#6b7280" />
+                  <CaretDown size={14} color="#ea580c" />
                 )}
               </TouchableOpacity>
               {levelUpOpen &&
@@ -176,7 +193,6 @@ const styles = StyleSheet.create({
   scannedBox: {
     backgroundColor: '#2563eb',
     padding: 20,
-    marginBottom: 16,
     alignItems: 'center',
   },
   scannedCount: {
@@ -191,24 +207,9 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 16,
-    gap: 24,
   },
   section: {
     gap: 0,
-  },
-  accordionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#6b7280',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
   },
   scrollTopButton: {
     position: 'absolute',
