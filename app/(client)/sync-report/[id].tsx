@@ -1,42 +1,65 @@
-import { useRef, useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
-import { Stack, useLocalSearchParams } from 'expo-router'
-import { ArrowCircleUp } from 'phosphor-react-native'
-import { useSyncReport } from '../../../src/hooks/useSyncReports'
-import { SyncReportOfferCard } from '../../../src/components/SyncReportOfferCard'
-import { formatNum } from '../../../src/utils/formatNum'
-import type { SyncReportOffer } from '../../../src/types/syncReport'
+import { useRef, useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  StyleSheet,
+} from 'react-native';
+import { Stack, useLocalSearchParams } from 'expo-router';
+import { ArrowCircleUp } from 'phosphor-react-native';
+import { useSyncReport } from '../../../src/hooks/useSyncReports';
+import {
+  OfferCard,
+  syncOfferToCardProps,
+} from '../../../src/components/OfferCard';
+import { formatNum } from '../../../src/utils/formatNum';
+import type { SyncReportOffer } from '../../../src/types/syncReport';
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 
 function formatDate(iso: string): string {
-  const d = new Date(iso)
-  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`
+  const d = new Date(iso);
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 function SectionHeader({ title }: { title: string }) {
-  return (
-    <Text style={styles.sectionTitle}>{title}</Text>
-  )
+  return <Text style={styles.sectionTitle}>{title}</Text>;
 }
 
 export default function SyncReportDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>()
-  const { data: sync, isLoading, isError } = useSyncReport(id)
-  const [showScrollTop, setShowScrollTop] = useState(false)
-  const scrollRef = useRef<ScrollView>(null)
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { data: sync, isLoading, isError } = useSyncReport(id);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
 
-  const report = sync?.report
-  const worthApplying: SyncReportOffer[] = report?.worth_applying ?? []
-  const levelUp: SyncReportOffer[] = report?.level_up ?? []
-  const scanned = report?.scanned
+  const report = sync?.report;
+  const worthApplying: SyncReportOffer[] = report?.worth_applying ?? [];
+  const levelUp: SyncReportOffer[] = report?.level_up ?? [];
+  const scanned = report?.scanned;
 
   return (
     <View style={styles.root}>
       <Stack.Screen
         options={{
           headerShown: true,
-          headerTitle: sync ? `Report for ${formatDate(sync.created_at)}` : 'Report',
+          headerTitle: sync
+            ? `Report for ${formatDate(sync.created_at)}`
+            : 'Report',
           headerTitleStyle: styles.headerTitle,
           headerStyle: styles.headerBar,
         }}
@@ -68,7 +91,7 @@ export default function SyncReportDetailScreen() {
             <View style={styles.section}>
               <SectionHeader title="Worth applying" />
               {worthApplying.map(offer => (
-                <SyncReportOfferCard key={offer.id} offer={offer} />
+                <OfferCard key={offer.url} {...syncOfferToCardProps(offer)} />
               ))}
             </View>
           )}
@@ -77,7 +100,7 @@ export default function SyncReportDetailScreen() {
             <View style={styles.section}>
               <SectionHeader title="Level up & earn more" />
               {levelUp.map(offer => (
-                <SyncReportOfferCard key={offer.id} offer={offer} />
+                <OfferCard key={offer.url} {...syncOfferToCardProps(offer)} />
               ))}
             </View>
           )}
@@ -99,7 +122,7 @@ export default function SyncReportDetailScreen() {
         </TouchableOpacity>
       )}
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -174,4 +197,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-})
+});

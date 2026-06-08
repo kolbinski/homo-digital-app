@@ -15,7 +15,7 @@ import { Stack, useRouter } from 'expo-router';
 import { ArrowCircleUp, Files, Funnel, Gear, X } from 'phosphor-react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { useApplications } from '../../src/hooks/useApplications';
-import { OfferCard } from '../../src/components/OfferCard';
+import { OfferCard, userOfferToCardProps } from '../../src/components/OfferCard';
 import { LogoutModal } from '../../src/components/LogoutModal';
 import type {
   OfferSource,
@@ -315,7 +315,7 @@ export default function ApplicationsScreen() {
           ref={sectionListRef}
           sections={sections}
           keyExtractor={item => item.user_offer_id}
-          renderItem={({ item }) => <OfferCard offer={item} />}
+          renderItem={({ item }) => <OfferCard {...userOfferToCardProps(item)} />}
           renderSectionHeader={({ section }) => (
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionHeaderText}>{section.title}</Text>
