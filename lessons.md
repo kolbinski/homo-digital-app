@@ -1,6 +1,10 @@
 # lessons.md — homo-digital-app
 
 ## React Native / Expo
+- **SDK version must match Expo Go on device** — Expo Go 54.0.8 requires SDK 54; SDK 56 will not load
+- Downgrading SDK: `npm install expo@~54.0.0 --legacy-peer-deps` then manually pin all native modules to SDK 54 versions (npx expo install --fix fails without --legacy-peer-deps)
+- SDK downgrade requires manual install of all mismatched packages — check `npx expo-doctor` output for the list
+- tsconfig `"types": ["nativewind/types"]` blocks process.env — add `"node"` to the types array to restore it (@types/node is already a transitive dep)
 - Use expo-secure-store for JWT, never AsyncStorage (not encrypted)
 - NativeWind v4 requires babel plugin AND metro config changes — follow official docs
 - NativeWind v4 requires tailwindcss v3, NOT v4 (npm install -D tailwindcss@3)

@@ -1,9 +1,10 @@
 # memory.md — homo-digital-app
 
 ## Project status
-🟢 My Applications screen complete. Login → role redirect → Applications list working.
+🟢 My Applications screen complete. SDK downgraded to 54 to match Expo Go 54.0.8 on device.
 
 ## Key decisions
+- **Expo SDK 54** — pinned to match Expo Go 54.0.8 on device; never upgrade without updating Expo Go first
 - Expo Router for navigation (file-based)
 - NativeWind v4 — requires tailwindcss v3, babel plugin, metro withNativeWind, global.css
 - Zustand for auth state (token, role, user_id) — stored in SecureStore
