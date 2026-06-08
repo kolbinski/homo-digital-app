@@ -113,6 +113,11 @@ export function OfferCard(props: OfferCardProps) {
   const scoreStyle = getScoreStyle(score);
   const sourceIcon = source ? SOURCE_ICONS[source] : null;
 
+  const hasSalary =
+    salary &&
+    salary.length > 0 &&
+    salary.some(s => s.min !== null || s.max !== null);
+
   const mergedMissingSkills = [
     ...(missing_skills ?? []),
     ...(skills_to_learn ?? []),
@@ -161,13 +166,15 @@ export function OfferCard(props: OfferCardProps) {
         </View>
       )}
 
-      {!salary || salary.length === 0 ? (
+      {!hasSalary ? (
         <Text style={styles.salaryNotDisclosed}>Salary not disclosed</Text>
       ) : (
         <View style={styles.salaryBlock}>
-          {salary.map((entry, i) => (
-            <SalaryLine key={i} entry={entry} />
-          ))}
+          {salary
+            .filter(s => s.min !== null || s.max !== null)
+            .map((entry, i) => (
+              <SalaryLine key={i} entry={entry} />
+            ))}
         </View>
       )}
 
@@ -260,8 +267,7 @@ const styles = StyleSheet.create({
   salaryNotDisclosed: {
     fontSize: 12,
     color: '#9ca3af',
-    fontStyle: 'italic',
-    marginVertical: 4,
+    marginTop: 4,
   },
   salaryBlock: {
     marginTop: 8,

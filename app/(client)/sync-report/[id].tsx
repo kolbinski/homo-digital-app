@@ -8,7 +8,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { ArrowCircleUp } from 'phosphor-react-native';
+import { ArrowCircleUp, CaretDown, CaretUp } from 'phosphor-react-native';
 import { useSyncReport } from '../../../src/hooks/useSyncReports';
 import {
   OfferCard,
@@ -37,14 +37,12 @@ function formatDate(iso: string): string {
   return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-function SectionHeader({ title }: { title: string }) {
-  return <Text style={styles.sectionTitle}>{title}</Text>;
-}
-
 export default function SyncReportDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: sync, isLoading, isError } = useSyncReport(id);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [worthApplyingOpen, setWorthApplyingOpen] = useState(true);
+  const [levelUpOpen, setLevelUpOpen] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
   const report = sync?.report;
@@ -89,19 +87,45 @@ export default function SyncReportDetailScreen() {
 
           {worthApplying.length > 0 && (
             <View style={styles.section}>
-              <SectionHeader title="Worth applying" />
-              {worthApplying.map(offer => (
-                <OfferCard key={offer.url} {...syncOfferToCardProps(offer)} />
-              ))}
+              <TouchableOpacity
+                onPress={() => setWorthApplyingOpen(v => !v)}
+                style={styles.accordionHeader}
+              >
+                <Text style={styles.sectionTitle}>
+                  Worth applying ({worthApplying.length})
+                </Text>
+                {worthApplyingOpen ? (
+                  <CaretUp size={14} color="#6b7280" />
+                ) : (
+                  <CaretDown size={14} color="#6b7280" />
+                )}
+              </TouchableOpacity>
+              {worthApplyingOpen &&
+                worthApplying.map(offer => (
+                  <OfferCard key={offer.url} {...syncOfferToCardProps(offer)} />
+                ))}
             </View>
           )}
 
           {levelUp.length > 0 && (
             <View style={styles.section}>
-              <SectionHeader title="Level up & earn more" />
-              {levelUp.map(offer => (
-                <OfferCard key={offer.url} {...syncOfferToCardProps(offer)} />
-              ))}
+              <TouchableOpacity
+                onPress={() => setLevelUpOpen(v => !v)}
+                style={styles.accordionHeader}
+              >
+                <Text style={styles.sectionTitle}>
+                  Level up & earn more ({levelUp.length})
+                </Text>
+                {levelUpOpen ? (
+                  <CaretUp size={14} color="#6b7280" />
+                ) : (
+                  <CaretDown size={14} color="#6b7280" />
+                )}
+              </TouchableOpacity>
+              {levelUpOpen &&
+                levelUp.map(offer => (
+                  <OfferCard key={offer.url} {...syncOfferToCardProps(offer)} />
+                ))}
             </View>
           )}
 
@@ -172,18 +196,23 @@ const styles = StyleSheet.create({
   section: {
     gap: 0,
   },
+  accordionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
   sectionTitle: {
     fontSize: 12,
     fontWeight: '600',
     color: '#6b7280',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   scrollTopButton: {
     position: 'absolute',
-    bottom: 24,
+    bottom: 64,
     right: 24,
     width: 44,
     height: 44,
