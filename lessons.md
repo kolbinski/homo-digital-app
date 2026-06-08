@@ -14,7 +14,7 @@
 - Expo Router requires app/ directory (not src/app/) at project root
 - Expo Router: set package.json `main` to `expo-router/entry`, remove old index.ts and App.tsx
 - expo-notifications requires physical device or EAS build — won't work in Expo Go for push
-- Use Linking.openURL() to open offer URLs in device browser
+- Use react-native-webview + Expo Router push for in-app URL viewing — prefer over Linking.openURL() for offer URLs so users stay in the app
 - npm install with --legacy-peer-deps needed throughout SDK 54 project
 - create-expo-app refuses to init in a non-empty directory — move files out first, then restore
 - FlatList: use keyExtractor with a stable unique id (user_offer_id), not array index
