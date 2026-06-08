@@ -261,7 +261,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginRight: 16,
   },
   filtersPanel: {
     backgroundColor: '#fff',
