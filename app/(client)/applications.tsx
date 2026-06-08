@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Stack, useRouter } from 'expo-router';
-import { Funnel, Gear, X } from 'phosphor-react-native';
+import { Files, Funnel, Gear, X } from 'phosphor-react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { useApplications } from '../../src/hooks/useApplications';
 import { OfferCard } from '../../src/components/OfferCard';
@@ -167,11 +167,7 @@ export default function ApplicationsScreen() {
           headerLeft: () => (
             <Image
               source={require('../../assets/logo.png')}
-              style={{
-                width: 32,
-                height: 32,
-                marginRight: 12,
-              }}
+              style={{ width: 32, height: 32, marginLeft: 4, marginBottom: 12 }}
               resizeMode="contain"
             />
           ),
@@ -179,6 +175,9 @@ export default function ApplicationsScreen() {
           headerStyle: styles.headerBar,
           headerRight: () => (
             <View style={styles.headerRight}>
+              <TouchableOpacity onPress={() => router.push('/(client)/sync-reports')}>
+                <Files size={22} color="#1a1a1a" />
+              </TouchableOpacity>
               <TouchableOpacity onPress={() => setFiltersVisible(v => !v)}>
                 {filtersVisible ? (
                   <X size={22} color="#1a1a1a" />

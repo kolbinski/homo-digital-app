@@ -1,7 +1,8 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import { ArrowSquareOut, CurrencyCircleDollar } from 'phosphor-react-native'
-import type { UserOffer, SalaryEntry } from '../types/userOffer'
+import type { SyncReportOffer } from '../types/syncReport'
+import type { SalaryEntry } from '../types/userOffer'
 import { formatNum } from '../utils/formatNum'
 
 const SOURCE_ICONS: Record<string, ReturnType<typeof require>> = {
@@ -17,60 +18,45 @@ function getScoreStyle(score: number) {
 
 function SalaryLine({ entry }: { entry: SalaryEntry }) {
   const hasRange = entry.min != null && entry.max != null
-  const hasDelta = entry.delta != null && entry.delta !== 0
-  const deltaPositive = (entry.delta ?? 0) > 0
-  const deltaSign = deltaPositive ? '+' : ''
-  const showNormalized =
-    entry.currency !== 'PLN' &&
-    entry.delta_normalized != null &&
-    entry.delta_normalized !== 0
-
   if (!hasRange) return null
-
   return (
     <View style={styles.salaryRow}>
       <CurrencyCircleDollar size={14} color="#9ca3af" />
       <Text style={styles.salaryLine}>
         {[entry.currency, entry.type].filter(Boolean).join(' ')}{' '}
         {formatNum(entry.min!)} – {formatNum(entry.max!)}
-        {hasDelta && (
-          <Text style={styles.deltaText}>
-            {'  '}{deltaSign}{formatNum(entry.delta!)}
-            {showNormalized ? ` (${formatNum(entry.delta_normalized!)} PLN)` : ''}
-          </Text>
-        )}
       </Text>
     </View>
   )
 }
 
 interface Props {
-  offer: UserOffer
+  offer: SyncReportOffer
 }
 
-export function OfferCard({ offer }: Props) {
+export function SyncReportOfferCard({ offer }: Props) {
   const router = useRouter()
-  const scoreStyle = getScoreStyle(offer.claude_score)
-  const sourceIcon = SOURCE_ICONS[offer.source]
+  const scoreStyle = getScoreStyle(offer.score)
+  const sourceIcon = offer.source ? SOURCE_ICONS[offer.source] : null
 
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         {sourceIcon && <Image source={sourceIcon} style={styles.sourceIcon} />}
-        {offer.claude_score > 0 && (
+        {offer.score > 0 && (
           <View style={[styles.scoreBadge, { backgroundColor: scoreStyle.bg, borderColor: scoreStyle.border }]}>
             <Text style={[styles.scoreBadgeText, { color: scoreStyle.text }]}>
-              {offer.claude_score}%
+              {offer.score}%
             </Text>
           </View>
         )}
         <Text style={styles.titleText} numberOfLines={2}>
-          <Text style={styles.titleBold}>{offer.offer_title}</Text>
-          <Text style={styles.titleCompany}> @ {offer.offer_company}</Text>
+          <Text style={styles.titleBold}>{offer.title}</Text>
+          <Text style={styles.titleCompany}> @ {offer.company}</Text>
         </Text>
       </View>
 
-      {offer.salary?.length > 0 && (
+      {offer.salary && offer.salary.length > 0 && (
         <View style={styles.salaryBlock}>
           {offer.salary.map((entry, i) => (
             <SalaryLine key={i} entry={entry} />
@@ -78,13 +64,28 @@ export function OfferCard({ offer }: Props) {
         </View>
       )}
 
-      {offer.claude_role_fit ? (
-        <Text style={styles.roleFit} numberOfLines={2}>{offer.claude_role_fit}</Text>
+      {offer.role_fit ? (
+        <Text style={styles.roleFit} numberOfLines={2}>{offer.role_fit}</Text>
       ) : null}
+
+      {(offer.city || offer.work_model) && (
+        <View style={styles.metaRow}>
+          {offer.city && (
+            <View style={styles.metaBadge}>
+              <Text style={styles.metaText}>{offer.city}</Text>
+            </View>
+          )}
+          {offer.work_model && (
+            <View style={styles.metaBadge}>
+              <Text style={styles.metaText}>{offer.work_model}</Text>
+            </View>
+          )}
+        </View>
+      )}
 
       {(() => {
         const missingSkills = [
-          ...(offer.claude_missing_skills ?? []),
+          ...(offer.missing_skills ?? []),
           ...(offer.skills_to_learn ?? []),
         ].filter((v, i, a) => a.indexOf(v) === i)
         return missingSkills.length > 0 ? (
@@ -99,9 +100,9 @@ export function OfferCard({ offer }: Props) {
         ) : null
       })()}
 
-      {offer.offer_url ? (
+      {offer.url ? (
         <TouchableOpacity
-          onPress={() => router.push({ pathname: '/offer', params: { url: offer.offer_url } })}
+          onPress={() => router.push({ pathname: '/offer', params: { url: offer.url } })}
           style={styles.viewOfferButton}
         >
           <Text style={styles.viewOfferText}>View offer</Text>
@@ -169,13 +170,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#1a1a1a',
   },
-  deltaText: {
-    color: '#f97316',
-  },
   roleFit: {
     fontSize: 12,
     color: '#4a4a4a',
     marginTop: 8,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 8,
+  },
+  metaBadge: {
+    backgroundColor: '#f3f4f6',
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  metaText: {
+    fontSize: 12,
+    color: '#6b7280',
   },
   viewOfferButton: {
     marginTop: 12,

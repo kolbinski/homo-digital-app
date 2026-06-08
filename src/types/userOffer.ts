@@ -14,6 +14,8 @@ export interface UserOffer {
   offer_url: string
   claude_score: number
   claude_role_fit: string
+  claude_missing_skills?: string[]
+  skills_to_learn?: string[]
   salary: SalaryEntry[]
   source: string
   cv_language: string
