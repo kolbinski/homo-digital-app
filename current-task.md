@@ -1,7 +1,7 @@
 # current-task.md — homo-digital-app
 
 ## Current task
-Project setup — COMPLETE.
+Client: My Applications screen — COMPLETE.
 
 ## Completed
 - [x] npx create-expo-app@latest . --template blank-typescript
@@ -11,14 +11,24 @@ Project setup — COMPLETE.
 - [x] Create auth store (Zustand + SecureStore hydration)
 - [x] Create login screen with email/password form
 - [x] POST /v1/auth/login with role-based redirect
-- [x] Stub screens: (client)/applications, (agent)/dashboard
 - [x] formatNum() utility
+- [x] src/types/userOffer.ts — UserOffer, SalaryEntry, OfferStatus, OfferSource types
+- [x] src/services/userOffers.ts — getOffers() with status/source/page params + 401 handling
+- [x] src/hooks/useApplications.ts — React Query hook, staleTime 5min
+- [x] src/components/OfferCard.tsx — full card with salary lines, delta coloring, date, status badge
+- [x] app/(client)/applications.tsx — header, filter pills (status + source), FlatList, pull-to-refresh, loading/error/empty states
 - [x] npx tsc --noEmit → 0 errors
 
+## Screen completion summary
+Screen: My Applications — /(client)/applications
+Data source: GET /v1/user-offers
+Role: client
+OV checkpoints passed: loading ✅ error ✅ empty ✅ pull-to-refresh ✅ formatNum ✅ delta color ✅ auth guard ✅ no inline styles ✅ 0 TS errors ✅
+Push notifications: no
+Observable signal: filter pills change → new fetch; offer tap → opens browser
+Lessons learned: none
+
 ## Next
-- Client: My Applications screen (GET /v1/user-offers?status=applied)
-  - Offer cards with title, company, work model, location, salary, status, date
-  - Filters: status select, source select
 - Client: Sync Report screen (GET /v1/user-syncs/:id)
 - Push notification registration on login → POST /v1/push-tokens
 - Agent: Dashboard screen (list of clients)
