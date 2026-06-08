@@ -98,6 +98,7 @@ export default function ApplicationsScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [showPicker, setShowPicker] = useState(false)
   const [filtersVisible, setFiltersVisible] = useState(false)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
 
   useEffect(() => {
     if (hydrated && (!token || role !== 'client')) {
@@ -107,7 +108,10 @@ export default function ApplicationsScreen() {
 
   const { data, isLoading, isError, refetch, isFetching } = useApplications(status, source, selectedDate)
 
-  const handleLogout = async () => {
+  const handleLogout = () => setShowLogoutModal(true)
+
+  const confirmLogout = async () => {
+    setShowLogoutModal(false)
     await clearAuth()
     router.replace('/(auth)/login')
   }
@@ -126,6 +130,7 @@ export default function ApplicationsScreen() {
     <View style={styles.root}>
       <Stack.Screen options={{
         headerShown: true,
+        headerBackVisible: false,
         headerTitle: 'My Applications',
         headerTitleStyle: styles.headerTitle,
         headerStyle: styles.headerBar,
@@ -143,6 +148,46 @@ export default function ApplicationsScreen() {
           </View>
         ),
       }} />
+
+      <Modal
+        visible={showLogoutModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowLogoutModal(false)}
+      >
+        <TouchableOpacity
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}
+          activeOpacity={1}
+          onPress={() => setShowLogoutModal(false)}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => {}}
+            style={{ backgroundColor: '#fff', borderRadius: 12, padding: 24, width: '80%', gap: 16 }}
+          >
+            <Text style={{ fontSize: 17, fontWeight: '600', color: '#1a1a1a', textAlign: 'center' }}>
+              Logout
+            </Text>
+            <Text style={{ fontSize: 15, color: '#6b7280', textAlign: 'center' }}>
+              Are you sure you want to logout?
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <TouchableOpacity
+                onPress={() => setShowLogoutModal(false)}
+                style={{ flex: 1, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#e5e7eb', alignItems: 'center' }}
+              >
+                <Text style={{ color: '#1a1a1a', fontWeight: '500' }}>No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={confirmLogout}
+                style={{ flex: 1, padding: 12, borderRadius: 8, backgroundColor: '#ef4444', alignItems: 'center' }}
+              >
+                <Text style={{ color: '#fff', fontWeight: '500' }}>Yes, logout</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
 
       <Modal visible={showPicker} transparent animationType="slide">
         <View style={styles.modalOverlay}>

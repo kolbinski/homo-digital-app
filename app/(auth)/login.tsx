@@ -11,6 +11,7 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../src/store/authStore';
 import { registerPushToken } from '../../src/utils/registerPushToken';
@@ -71,6 +72,7 @@ export default function LoginScreen() {
   }
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#000000' }}>
     <KeyboardAvoidingView
       style={styles.root}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -135,6 +137,12 @@ export default function LoginScreen() {
           )}
         </TouchableOpacity>
 
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 12 }}>
+          <View style={{ flex: 1, height: 0.5, backgroundColor: '#333' }} />
+          <Text style={{ color: '#6b7280', fontSize: 13, marginHorizontal: 12 }}>or</Text>
+          <View style={{ flex: 1, height: 0.5, backgroundColor: '#333' }} />
+        </View>
+
         <TouchableOpacity
           style={styles.joinButton}
           onPress={() => router.push('/(auth)/join')}
@@ -144,6 +152,7 @@ export default function LoginScreen() {
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -190,6 +199,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#9ca3af',
     marginBottom: 16,
+    textAlign: 'center',
   },
   label: {
     fontSize: 13,
@@ -226,7 +236,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
-    marginTop: 12,
   },
   buttonText: {
     color: '#fff',

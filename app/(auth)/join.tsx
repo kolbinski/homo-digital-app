@@ -10,8 +10,8 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, CheckCircle } from 'phosphor-react-native';
 import { validateEmail } from '../../src/utils/validateEmail';
@@ -64,7 +64,7 @@ export default function JoinScreen() {
 
   if (success) {
     return (
-      <SafeAreaView style={styles.root}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#000000' }}>
         <View style={styles.successContainer}>
           <CheckCircle size={64} color="#16a34a" weight="fill" />
           <Text style={styles.successTitle}>Thank you!</Text>
