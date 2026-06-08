@@ -1,32 +1,17 @@
-import { View, Text, TouchableOpacity, Linking, StyleSheet } from 'react-native'
+import { View, Text, Image, TouchableOpacity, Linking, StyleSheet } from 'react-native'
+import { CurrencyCircleDollar } from 'phosphor-react-native'
 import type { UserOffer, SalaryEntry } from '../types/userOffer'
 import { formatNum } from '../utils/formatNum'
 
-const STATUS_LABELS: Record<string, string> = {
-  applied: 'Applied',
-  agent_withdrawn: 'Withdrawn',
-  recruiter_rejected: 'Rejected',
-  offer_received: 'Offer',
-  accepted: 'Accepted',
-  client_withdrawn: 'Withdrawn',
+const SOURCE_ICONS: Record<string, ReturnType<typeof require>> = {
+  justjoin: require('../../assets/sources/justjoin.png'),
+  nofluffjobs: require('../../assets/sources/nofluffjobs.png'),
 }
 
-const STATUS_BG: Record<string, string> = {
-  applied: '#f0f0f0',
-  agent_withdrawn: '#fee2e2',
-  recruiter_rejected: '#fee2e2',
-  offer_received: '#dcfce7',
-  accepted: '#bbf7d0',
-  client_withdrawn: '#fee2e2',
-}
-
-const STATUS_TEXT: Record<string, string> = {
-  applied: '#4a4a4a',
-  agent_withdrawn: '#b91c1c',
-  recruiter_rejected: '#b91c1c',
-  offer_received: '#15803d',
-  accepted: '#166534',
-  client_withdrawn: '#b91c1c',
+function getScoreStyle(score: number) {
+  if (score >= 70) return { bg: '#f0fdf4', text: '#15803d', border: '#bbf7d0' }
+  if (score >= 50) return { bg: '#fefce8', text: '#a16207', border: '#fef08a' }
+  return { bg: '#f9fafb', text: '#6b7280', border: '#e5e7eb' }
 }
 
 function SalaryLine({ entry }: { entry: SalaryEntry }) {
@@ -39,16 +24,19 @@ function SalaryLine({ entry }: { entry: SalaryEntry }) {
   if (!hasRange) return null
 
   return (
-    <Text style={styles.salaryLine}>
-      {[entry.currency, entry.type].filter(Boolean).join(' ')}{' '}
-      {formatNum(entry.min!)} – {formatNum(entry.max!)}
-      {hasDelta && (
-        <Text style={styles.deltaText}>
-          {'  '}{deltaSign}{formatNum(entry.delta!)}
-          {showNormalized ? ` (${formatNum(entry.delta_normalized!)} PLN)` : ''}
-        </Text>
-      )}
-    </Text>
+    <View style={styles.salaryRow}>
+      <CurrencyCircleDollar size={14} color="#9ca3af" />
+      <Text style={styles.salaryLine}>
+        {[entry.currency, entry.type].filter(Boolean).join(' ')}{' '}
+        {formatNum(entry.min!)} – {formatNum(entry.max!)}
+        {hasDelta && (
+          <Text style={styles.deltaText}>
+            {'  '}{deltaSign}{formatNum(entry.delta!)}
+            {showNormalized ? ` (${formatNum(entry.delta_normalized!)} PLN)` : ''}
+          </Text>
+        )}
+      </Text>
+    </View>
   )
 }
 
@@ -57,9 +45,8 @@ interface Props {
 }
 
 export function OfferCard({ offer }: Props) {
-  const statusLabel = STATUS_LABELS[offer.status] ?? offer.status
-  const badgeBg = STATUS_BG[offer.status] ?? '#f0f0f0'
-  const badgeText = STATUS_TEXT[offer.status] ?? '#4a4a4a'
+  const scoreStyle = getScoreStyle(offer.claude_score)
+  const sourceIcon = SOURCE_ICONS[offer.source]
 
   return (
     <TouchableOpacity
@@ -68,18 +55,19 @@ export function OfferCard({ offer }: Props) {
       onPress={() => offer.offer_url ? Linking.openURL(offer.offer_url) : undefined}
     >
       <View style={styles.cardHeader}>
-        <View style={styles.cardTitleBlock}>
-          <Text style={styles.offerTitle} numberOfLines={2}>
-            {offer.offer_title}
+        {sourceIcon && (
+          <Image source={sourceIcon} style={styles.sourceIcon} />
+        )}
+        <View style={[styles.scoreBadge, { backgroundColor: scoreStyle.bg, borderColor: scoreStyle.border }]}>
+          <Text style={[styles.scoreBadgeText, { color: scoreStyle.text }]}>
+            {offer.claude_score}%
           </Text>
-          <Text style={styles.company}>@ {offer.offer_company}</Text>
         </View>
-        <View style={[styles.badge, { backgroundColor: badgeBg }]}>
-          <Text style={[styles.badgeText, { color: badgeText }]}>{statusLabel}</Text>
-        </View>
+        <Text style={styles.titleText} numberOfLines={2}>
+          <Text style={styles.titleBold}>{offer.offer_title}</Text>
+          <Text style={styles.titleCompany}> @ {offer.offer_company}</Text>
+        </Text>
       </View>
-
-      <Text style={styles.score}>{offer.claude_score}/100</Text>
 
       {offer.salary?.length > 0 && (
         <View style={styles.salaryBlock}>
@@ -92,7 +80,6 @@ export function OfferCard({ offer }: Props) {
       {offer.claude_role_fit ? (
         <Text style={styles.roleFit} numberOfLines={2}>{offer.claude_role_fit}</Text>
       ) : null}
-
     </TouchableOpacity>
   )
 }
@@ -110,45 +97,50 @@ const styles = StyleSheet.create({
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: 4,
+    gap: 6,
   },
-  cardTitleBlock: {
-    flex: 1,
-    marginRight: 8,
+  sourceIcon: {
+    width: 16,
+    height: 16,
+    borderRadius: 3,
+    marginTop: 1,
   },
-  offerTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#1a1a1a',
-  },
-  company: {
-    fontSize: 14,
-    color: '#4a4a4a',
-    marginTop: 2,
-  },
-  badge: {
-    paddingHorizontal: 8,
+  scoreBadge: {
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 999,
+    marginTop: 1,
   },
-  badgeText: {
-    fontSize: 12,
-    fontWeight: '500',
+  scoreBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
   },
-  score: {
-    fontSize: 13,
+  titleText: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  titleBold: {
     fontWeight: '600',
     color: '#1a1a1a',
-    marginTop: 6,
+  },
+  titleCompany: {
+    color: '#9ca3af',
+    fontWeight: '400',
   },
   salaryBlock: {
     marginTop: 8,
+    gap: 4,
+  },
+  salaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   salaryLine: {
     fontSize: 14,
     color: '#1a1a1a',
-    marginTop: 2,
   },
   deltaText: {
     color: '#f97316',
