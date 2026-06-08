@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   salaryBlock: {
-    marginTop: 8,
+    marginTop: 4,
     gap: 4,
   },
   salaryRow: {
@@ -295,6 +295,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 4,
     marginTop: 6,
+    alignItems: 'center',
   },
   missingLabel: {
     fontSize: 12,

@@ -85,35 +85,34 @@ export default function SyncReportDetailScreen() {
             </View>
           )}
 
-          {worthApplying.length > 0 && (
-            <View style={styles.section}>
-              <TouchableOpacity
-                onPress={() => setWorthApplyingOpen(v => !v)}
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  backgroundColor: '#dcfce7',
-                  padding: 24,
-                }}
+          <View style={styles.section}>
+            <TouchableOpacity
+              onPress={() => setWorthApplyingOpen(v => !v)}
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: '#dcfce7',
+                padding: 24,
+                marginBottom: worthApplyingOpen ? 8 : 0,
+              }}
+            >
+              <Text
+                style={{ fontSize: 13, fontWeight: '600', color: '#16a34a' }}
               >
-                <Text
-                  style={{ fontSize: 13, fontWeight: '600', color: '#16a34a' }}
-                >
-                  Worth applying ({worthApplying.length})
-                </Text>
-                {worthApplyingOpen ? (
-                  <CaretUp size={14} color="#16a34a" />
-                ) : (
-                  <CaretDown size={14} color="#16a34a" />
-                )}
-              </TouchableOpacity>
-              {worthApplyingOpen &&
-                worthApplying.map(offer => (
-                  <OfferCard key={offer.url} {...syncOfferToCardProps(offer)} />
-                ))}
-            </View>
-          )}
+                Worth applying ({worthApplying.length})
+              </Text>
+              {worthApplyingOpen ? (
+                <CaretUp size={14} color="#16a34a" />
+              ) : (
+                <CaretDown size={14} color="#16a34a" />
+              )}
+            </TouchableOpacity>
+            {worthApplyingOpen &&
+              worthApplying.map(offer => (
+                <OfferCard key={offer.url} {...syncOfferToCardProps(offer)} />
+              ))}
+          </View>
 
           {levelUp.length > 0 && (
             <View style={styles.section}>

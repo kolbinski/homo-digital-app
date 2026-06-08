@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,55 +8,55 @@ import {
   ActivityIndicator,
   Linking,
   StyleSheet,
-} from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { Stack, useRouter } from 'expo-router'
-import { Envelope, Phone } from 'phosphor-react-native'
-import { useAuthStore } from '../../src/store/authStore'
-import { LogoutModal } from '../../src/components/LogoutModal'
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Stack, useRouter } from 'expo-router';
+import { Envelope, Phone } from 'phosphor-react-native';
+import { useAuthStore } from '../../src/store/authStore';
+import { LogoutModal } from '../../src/components/LogoutModal';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 interface Agent {
-  first_name: string
-  last_name: string
-  email: string
-  phone?: string
-  photo_url?: string
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+  photo_url?: string;
 }
 
 export default function SettingsScreen() {
-  const router = useRouter()
-  const { token, clearAuth } = useAuthStore()
-  const [agent, setAgent] = useState<Agent | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [showPhoneModal, setShowPhoneModal] = useState(false)
-  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const router = useRouter();
+  const { token, clearAuth } = useAuthStore();
+  const [agent, setAgent] = useState<Agent | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     async function fetchAgent() {
       try {
         const res = await fetch(`${API_URL}/v1/agent/me`, {
           headers: { Authorization: `Bearer ${token}` },
-        })
+        });
         if (res.ok) {
-          const data = await res.json()
-          setAgent(data)
+          const data = await res.json();
+          setAgent(data);
         }
       } catch {
         // non-critical
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
-    fetchAgent()
-  }, [token])
+    fetchAgent();
+  }, [token]);
 
   const confirmLogout = async () => {
-    setShowLogoutModal(false)
-    await clearAuth()
-    router.replace('/(auth)/login')
-  }
+    setShowLogoutModal(false);
+    await clearAuth();
+    router.replace('/(auth)/login');
+  };
 
   return (
     <SafeAreaView style={styles.root} edges={['bottom']}>
@@ -73,21 +73,35 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>Your agent</Text>
 
         {loading ? (
-          <View style={styles.centered}>
+          <View style={styles.agentCard}>
             <ActivityIndicator size="large" color="#1a1a1a" />
           </View>
         ) : agent ? (
           <View style={styles.agentCard}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}
+            >
               {agent.photo_url ? (
                 <Image
                   source={{ uri: agent.photo_url }}
                   style={{ width: 56, height: 56, borderRadius: 28 }}
                 />
               ) : (
-                <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: '#1a1a1a', alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: '#fff', fontSize: 20, fontWeight: '600' }}>
-                    {agent.first_name[0]}{agent.last_name[0]}
+                <View
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 28,
+                    backgroundColor: '#1a1a1a',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text
+                    style={{ color: '#fff', fontSize: 20, fontWeight: '600' }}
+                  >
+                    {agent.first_name[0]}
+                    {agent.last_name[0]}
                   </Text>
                 </View>
               )}
@@ -142,23 +156,42 @@ export default function SettingsScreen() {
         onRequestClose={() => setShowPhoneModal(false)}
       >
         <TouchableOpacity
-          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
           activeOpacity={1}
           onPress={() => setShowPhoneModal(false)}
         >
           <TouchableOpacity
             activeOpacity={1}
             onPress={() => {}}
-            style={{ backgroundColor: '#fff', borderRadius: 12, padding: 24, width: '80%', gap: 12 }}
+            style={{
+              backgroundColor: '#fff',
+              borderRadius: 12,
+              padding: 24,
+              width: '80%',
+              gap: 12,
+            }}
           >
-            <Text style={{ fontSize: 17, fontWeight: '600', color: '#1a1a1a', textAlign: 'center', marginBottom: 4 }}>
+            <Text
+              style={{
+                fontSize: 17,
+                fontWeight: '600',
+                color: '#1a1a1a',
+                textAlign: 'center',
+                marginBottom: 4,
+              }}
+            >
               Contact agent
             </Text>
             <TouchableOpacity
               style={styles.phoneOption}
               onPress={() => {
-                setShowPhoneModal(false)
-                Linking.openURL(`tel:${agent?.phone}`)
+                setShowPhoneModal(false);
+                Linking.openURL(`tel:${agent?.phone}`);
               }}
               activeOpacity={0.7}
             >
@@ -168,13 +201,17 @@ export default function SettingsScreen() {
             <TouchableOpacity
               style={styles.phoneOption}
               onPress={() => {
-                setShowPhoneModal(false)
-                Linking.openURL(`whatsapp://send?phone=${agent?.phone?.replace('+', '')}`)
+                setShowPhoneModal(false);
+                Linking.openURL(
+                  `whatsapp://send?phone=${agent?.phone?.replace('+', '')}`,
+                );
               }}
               activeOpacity={0.7}
             >
               <Phone size={18} color="#25d366" />
-              <Text style={[styles.phoneOptionText, { color: '#25d366' }]}>WhatsApp</Text>
+              <Text style={[styles.phoneOptionText, { color: '#25d366' }]}>
+                WhatsApp
+              </Text>
             </TouchableOpacity>
           </TouchableOpacity>
         </TouchableOpacity>
@@ -186,7 +223,7 @@ export default function SettingsScreen() {
         onConfirm={confirmLogout}
       />
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -273,4 +310,4 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     fontWeight: '500',
   },
-})
+});

@@ -5,6 +5,7 @@ import {
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
+  RefreshControl,
   StyleSheet,
 } from 'react-native';
 import { Stack, useRouter, useFocusEffect } from 'expo-router';
@@ -101,7 +102,14 @@ export default function SyncReportsScreen() {
   const [navigating, setNavigating] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const flatListRef = useRef<FlatList<SyncReportSummary>>(null);
-  const { data, isLoading, isError } = useSyncReports();
+  const [refreshing, setRefreshing] = useState(false);
+  const { data, isLoading, isError, refetch } = useSyncReports();
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -146,6 +154,9 @@ export default function SyncReportsScreen() {
           contentContainerStyle={styles.listContent}
           onScroll={e => setShowScrollTop(e.nativeEvent.contentOffset.y > 200)}
           scrollEventThrottle={16}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
           ListEmptyComponent={
             <View style={styles.centered}>
               <Text style={styles.messageText}>No sync reports yet.</Text>
