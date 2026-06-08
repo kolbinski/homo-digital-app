@@ -1,5 +1,8 @@
 import { useState } from 'react'
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native'
+import {
+  View, Text, FlatList, ActivityIndicator, TouchableOpacity,
+  ScrollView, StyleSheet,
+} from 'react-native'
 import { useRouter } from 'expo-router'
 import { useAuthStore } from '../../src/store/authStore'
 import { useApplications } from '../../src/hooks/useApplications'
@@ -21,24 +24,18 @@ const SOURCE_OPTIONS: { label: string; value: OfferSource }[] = [
   { label: 'NoFluffJobs', value: 'nofluffjobs' },
 ]
 
-function FilterPill({
-  label,
-  active,
-  onPress,
-}: {
+function FilterPill({ label, active, onPress }: {
   label: string
   active: boolean
   onPress: () => void
 }) {
   return (
     <TouchableOpacity
-      className={`px-3 py-1.5 rounded-full mr-2 border ${
-        active ? 'bg-[#1a1a1a] border-[#1a1a1a]' : 'bg-white border-[#f0f0f0]'
-      }`}
+      style={[styles.pill, active && styles.pillActive]}
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <Text className={`text-sm font-medium ${active ? 'text-white' : 'text-[#4a4a4a]'}`}>
+      <Text style={[styles.pillText, active && styles.pillTextActive]}>
         {label}
       </Text>
     </TouchableOpacity>
@@ -59,13 +56,13 @@ export default function ApplicationsScreen() {
   const { data, isLoading, isError, refetch, isFetching } = useApplications(status, source)
 
   return (
-    <View className="flex-1 bg-[#f9f9f9]">
-      <View className="bg-white pt-14 pb-3 px-4 border-b border-[#f0f0f0]">
-        <Text className="text-2xl font-bold text-[#1a1a1a]">My Applications</Text>
+    <View style={styles.root}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>My Applications</Text>
       </View>
 
-      <View className="bg-white border-b border-[#f0f0f0] py-3">
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4">
+      <View style={styles.filters}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
           {STATUS_OPTIONS.map((opt) => (
             <FilterPill
               key={opt.label}
@@ -75,7 +72,7 @@ export default function ApplicationsScreen() {
             />
           ))}
         </ScrollView>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4 mt-2">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.filterRow, styles.filterRowTop]}>
           {SOURCE_OPTIONS.map((opt) => (
             <FilterPill
               key={opt.value}
@@ -88,26 +85,24 @@ export default function ApplicationsScreen() {
       </View>
 
       {isLoading ? (
-        <View className="flex-1 items-center justify-center">
+        <View style={styles.centered}>
           <ActivityIndicator size="large" color="#1a1a1a" />
         </View>
       ) : isError ? (
-        <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-base text-[#4a4a4a] text-center">
-            Failed to load. Pull to refresh.
-          </Text>
+        <View style={styles.centered}>
+          <Text style={styles.messageText}>Failed to load. Pull to refresh.</Text>
         </View>
       ) : (
         <FlatList<UserOffer>
           data={data ?? []}
           keyExtractor={(item) => item.user_offer_id}
           renderItem={({ item }) => <OfferCard offer={item} />}
-          contentContainerStyle={{ paddingTop: 12, paddingBottom: 32 }}
+          contentContainerStyle={styles.listContent}
           refreshing={isFetching && !isLoading}
           onRefresh={refetch}
           ListEmptyComponent={
-            <View className="flex-1 items-center justify-center mt-20">
-              <Text className="text-base text-[#4a4a4a]">No applications yet.</Text>
+            <View style={styles.centered}>
+              <Text style={styles.messageText}>No applications yet.</Text>
             </View>
           }
         />
@@ -115,3 +110,72 @@ export default function ApplicationsScreen() {
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: '#f9f9f9',
+  },
+  header: {
+    backgroundColor: '#fff',
+    paddingTop: 56,
+    paddingBottom: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  filters: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    paddingVertical: 12,
+  },
+  filterRow: {
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  filterRowTop: {
+    marginTop: 8,
+  },
+  pill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    backgroundColor: '#fff',
+  },
+  pillActive: {
+    backgroundColor: '#1a1a1a',
+    borderColor: '#1a1a1a',
+  },
+  pillText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#4a4a4a',
+  },
+  pillTextActive: {
+    color: '#fff',
+  },
+  centered: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 80,
+  },
+  messageText: {
+    fontSize: 16,
+    color: '#4a4a4a',
+    textAlign: 'center',
+    paddingHorizontal: 24,
+  },
+  listContent: {
+    paddingTop: 12,
+    paddingBottom: 32,
+  },
+})

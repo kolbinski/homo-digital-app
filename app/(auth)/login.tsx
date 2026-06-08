@@ -1,5 +1,8 @@
 import { useState } from 'react'
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native'
+import {
+  View, Text, TextInput, TouchableOpacity, ActivityIndicator,
+  KeyboardAvoidingView, Platform, StyleSheet,
+} from 'react-native'
 import { useRouter } from 'expo-router'
 import { useAuthStore } from '../../src/store/authStore'
 
@@ -49,16 +52,16 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-white"
+      style={styles.root}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View className="flex-1 justify-center px-6">
-        <Text className="text-3xl font-bold text-[#1a1a1a] mb-2">Homo Digital</Text>
-        <Text className="text-base text-[#4a4a4a] mb-10">Sign in to your account</Text>
+      <View style={styles.inner}>
+        <Text style={styles.title}>Homo Digital</Text>
+        <Text style={styles.subtitle}>Sign in to your account</Text>
 
-        <Text className="text-sm font-medium text-[#1a1a1a] mb-1">Email</Text>
+        <Text style={styles.label}>Email</Text>
         <TextInput
-          className="border border-[#f0f0f0] rounded-lg px-4 py-3 mb-4 text-[#1a1a1a] bg-[#f9f9f9]"
+          style={styles.input}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -69,9 +72,9 @@ export default function LoginScreen() {
           placeholderTextColor="#4a4a4a"
         />
 
-        <Text className="text-sm font-medium text-[#1a1a1a] mb-1">Password</Text>
+        <Text style={styles.label}>Password</Text>
         <TextInput
-          className="border border-[#f0f0f0] rounded-lg px-4 py-3 mb-6 text-[#1a1a1a] bg-[#f9f9f9]"
+          style={[styles.input, styles.inputPassword]}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -81,22 +84,79 @@ export default function LoginScreen() {
           placeholderTextColor="#4a4a4a"
         />
 
-        {error && (
-          <Text className="text-red-600 text-sm mb-4">{error}</Text>
-        )}
+        {error && <Text style={styles.error}>{error}</Text>}
 
         <TouchableOpacity
-          className="bg-[#1a1a1a] rounded-lg py-4 items-center"
+          style={styles.button}
           onPress={handleLogin}
           disabled={loading}
+          activeOpacity={0.8}
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text className="text-white font-semibold text-base">Sign in</Text>
-          )}
+          {loading
+            ? <ActivityIndicator color="#fff" />
+            : <Text style={styles.buttonText}>Sign in</Text>
+          }
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   )
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  inner: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#4a4a4a',
+    marginBottom: 40,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#1a1a1a',
+    marginBottom: 4,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 16,
+    fontSize: 16,
+    color: '#1a1a1a',
+    backgroundColor: '#f9f9f9',
+  },
+  inputPassword: {
+    marginBottom: 24,
+  },
+  error: {
+    color: '#dc2626',
+    fontSize: 14,
+    marginBottom: 16,
+  },
+  button: {
+    backgroundColor: '#1a1a1a',
+    borderRadius: 8,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+})

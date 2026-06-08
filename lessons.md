@@ -3,21 +3,20 @@
 ## React Native / Expo
 - **SDK version must match Expo Go on device** — Expo Go 54.0.8 requires SDK 54; SDK 56 will not load
 - Downgrading SDK: `npm install expo@~54.0.0 --legacy-peer-deps` then manually pin all native modules to SDK 54 versions (npx expo install --fix fails without --legacy-peer-deps)
+- **After any SDK downgrade, always run `npx expo install react react-native`** — this pins them to the exact versions Expo expects; `^` ranges left in package.json will resolve to newer versions that cause mismatch warnings
 - SDK downgrade requires manual install of all mismatched packages — check `npx expo-doctor` output for the list
-- tsconfig `"types": ["nativewind/types"]` blocks process.env — add `"node"` to the types array to restore it (@types/node is already a transitive dep)
-- Use expo-secure-store for JWT, never AsyncStorage (not encrypted)
-- NativeWind v4 requires babel plugin AND metro config changes — follow official docs
-- NativeWind v4 requires tailwindcss v3, NOT v4 (npm install -D tailwindcss@3)
-- NativeWind v4 requires global.css with @tailwind directives + metro withNativeWind wrapper
+- **NativeWind v4 is incompatible with Expo SDK 54 — do not use.** Babel peer dependency conflicts between react-native-reanimated (requires RN 0.83-0.86) and SDK 54 (uses RN 0.81.5) cannot be cleanly resolved
+- **Use React Native StyleSheet for all styling** — it is the stable, zero-dependency approach for SDK 54
+- StatusSheet color pattern: define STATUS_BG and STATUS_TEXT as plain hex string Record maps, apply via style prop — no className needed
+- Salary delta color: use inline `{ color: '#f97316' }` for orange, `{ color: '#dc2626' }` for red
+- `gap` in StyleSheet requires RN 0.71+ — supported in SDK 54 (RN 0.81.5)
 - Expo Router requires app/ directory (not src/app/) at project root
 - Expo Router: set package.json `main` to `expo-router/entry`, remove old index.ts and App.tsx
 - expo-notifications requires physical device or EAS build — won't work in Expo Go for push
 - Use Linking.openURL() to open offer URLs in device browser
-- declarations.d.ts with `declare module '*.css' {}` needed for CSS import in TSC
-- npm install of nativewind on Expo SDK 56 requires --legacy-peer-deps (react-dom peer dep conflict)
+- npm install with --legacy-peer-deps needed throughout SDK 54 project
 - create-expo-app refuses to init in a non-empty directory — move files out first, then restore
 - FlatList: use keyExtractor with a stable unique id (user_offer_id), not array index
-- contentContainerStyle on FlatList accepts plain object, not className — the one place inline style is unavoidable
 
 ## API
 - Always use EXPO_PUBLIC_ prefix for env vars in Expo
@@ -28,7 +27,7 @@
 
 ## Formatting
 - Always use formatNum() for number display, never toLocaleString()
-- Salary delta: orange (text-orange-500) for positive, red (text-red-600) for negative
+- Salary delta: orange (#f97316) for positive, red (#dc2626) for negative
 - Dates: format manually (D MMM YYYY) — no date-fns installed, keep bundle small
 
 ## General

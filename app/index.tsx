@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useRouter } from 'expo-router'
-import { View, ActivityIndicator } from 'react-native'
+import { View, ActivityIndicator, StyleSheet } from 'react-native'
 import { useAuthStore } from '../src/store/authStore'
 
 export default function Index() {
@@ -8,7 +8,7 @@ export default function Index() {
   const { token, role } = useAuthStore()
 
   useEffect(() => {
-    if (token === null) return // still hydrating
+    if (token === null) return
     if (!token) {
       router.replace('/(auth)/login')
     } else if (role === 'agent') {
@@ -19,8 +19,17 @@ export default function Index() {
   }, [token, role])
 
   return (
-    <View className="flex-1 items-center justify-center bg-white">
+    <View style={styles.container}>
       <ActivityIndicator size="large" color="#1a1a1a" />
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+})
