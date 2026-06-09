@@ -33,7 +33,11 @@ export default function RootLayout() {
         router.push('/(client)/applications')
       }
       if (data?.type === 'sync_complete') {
-        router.push('/(client)/sync-reports')
+        if (data.user_sync_id) {
+          router.push('/(client)/sync-report/' + data.user_sync_id)
+        } else {
+          router.push('/(client)/sync-reports')
+        }
       }
     })
     return () => sub.remove()
