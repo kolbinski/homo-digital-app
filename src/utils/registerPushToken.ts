@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
+import Constants from 'expo-constants'
 import { Platform } from 'react-native'
 
 export async function registerPushToken(apiUrl: string, token: string): Promise<void> {
@@ -19,7 +20,8 @@ export async function registerPushToken(apiUrl: string, token: string): Promise<
   }
 
   try {
-    const pushToken = await Notifications.getExpoPushTokenAsync()
+    const projectId = Constants.expoConfig?.extra?.eas?.projectId
+    const pushToken = await Notifications.getExpoPushTokenAsync({ projectId })
 
     await fetch(`${apiUrl}/v1/push-tokens`, {
       method: 'POST',
