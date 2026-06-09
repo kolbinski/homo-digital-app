@@ -5,6 +5,17 @@ import type { UserOffer, SalaryEntry } from '../types/userOffer';
 import type { SyncReportOffer } from '../types/syncReport';
 import { formatNum } from '../utils/formatNum';
 
+const STATUS_LABELS: Record<string, string> = {
+  pending_apply: 'Pending apply',
+  applied: 'Applied',
+  agent_withdrawn: 'Agent withdrawn',
+  recruiter_rejected: 'Recruiter rejected',
+  offer_received: 'Offer received',
+  accepted: 'Accepted',
+  client_withdrawn: 'Client withdrawn',
+  offer_expired: 'Offer expired',
+};
+
 const SOURCE_ICONS: Record<string, ReturnType<typeof require>> = {
   justjoin: require('../../assets/sources/justjoin.png'),
   nofluffjobs: require('../../assets/sources/nofluffjobs.png'),
@@ -61,6 +72,7 @@ export interface OfferCardProps {
   missing_skills?: string[];
   skills_to_learn?: string[];
   url: string;
+  status?: string | null;
 }
 
 export function userOfferToCardProps(offer: UserOffer): OfferCardProps {
@@ -92,6 +104,7 @@ export function syncOfferToCardProps(offer: SyncReportOffer): OfferCardProps {
     missing_skills: offer.missing_skills,
     skills_to_learn: offer.skills_to_learn,
     url: offer.url ?? '',
+    status: offer.status,
   };
 }
 
@@ -109,6 +122,7 @@ export function OfferCard(props: OfferCardProps) {
     missing_skills,
     skills_to_learn,
     url,
+    status,
   } = props;
   const scoreStyle = getScoreStyle(score);
   const sourceIcon = source ? SOURCE_ICONS[source] : null;
@@ -151,7 +165,7 @@ export function OfferCard(props: OfferCardProps) {
         </Text>
       </View>
 
-      {(city || work_model) && (
+      {(city || work_model || (status && STATUS_LABELS[status])) && (
         <View style={styles.tagsRow}>
           {work_model && (
             <View style={styles.tagBadge}>
@@ -163,6 +177,11 @@ export function OfferCard(props: OfferCardProps) {
               <Text style={styles.tagText}>{city}</Text>
             </View>
           )}
+          {status && STATUS_LABELS[status] ? (
+            <View style={styles.tagBadge}>
+              <Text style={styles.tagText}>{STATUS_LABELS[status]}</Text>
+            </View>
+          ) : null}
         </View>
       )}
 

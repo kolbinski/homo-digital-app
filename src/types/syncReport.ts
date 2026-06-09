@@ -13,6 +13,7 @@ export interface SyncReportOffer {
   source?: string
   missing_skills?: string[]
   skills_to_learn?: string[]
+  status?: string | null
 }
 
 export interface SyncReportData {

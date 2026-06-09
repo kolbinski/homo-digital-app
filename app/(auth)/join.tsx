@@ -44,13 +44,16 @@ export default function JoinScreen() {
     setError(null);
     try {
       console.log('Sending prospect:', { email, notes, role: 'client' });
-      const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/v1/prospects`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const res = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/v1/prospects`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, notes, role: 'client' }),
         },
-        body: JSON.stringify({ email, notes, role: 'client' }),
-      });
+      );
       console.log('Response status:', res.status);
       const data = await res.json();
       console.log('Response body:', JSON.stringify(data));
@@ -272,7 +275,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   requestButton: {
-    backgroundColor: '#16a34a',
+    backgroundColor: '#2563eb',
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
