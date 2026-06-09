@@ -45,6 +45,9 @@
 - **setNotificationHandler must be called at module level** — call it in _layout.tsx outside the component so it's set before any notification arrives
 - **EAS build required for push testing on device** — Expo Go does not support push notifications in production; use EAS build or development build
 
+## Build / Production
+- **Remove console.log in production with `babel-plugin-transform-remove-console`** — add as devDependency, then in babel.config.js set `env.production.plugins: ['transform-remove-console']`; zero runtime cost, no code changes needed
+
 ## General
 - Test on physical device early — simulator misses many native behaviors
 - EAS build needed for push notifications testing
