@@ -19,17 +19,17 @@ async function getOffers(params: GetOffersParams): Promise<UserOffer[]> {
   if (params.source && params.source !== 'all')
     query.append('source', params.source);
   if (params.date) {
-    const start = new Date(params.date)
-    start.setHours(0, 0, 0, 0)
-    const end = new Date(params.date)
-    end.setHours(23, 59, 59, 999)
-    query.append('date_from', start.toISOString())
-    query.append('date_to', end.toISOString())
+    const start = new Date(params.date);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(params.date);
+    end.setHours(23, 59, 59, 999);
+    query.append('date_from', start.toISOString());
+    query.append('date_to', end.toISOString());
   } else {
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-    query.append('date_from', thirtyDaysAgo.toISOString())
-    query.append('date_to', new Date().toISOString())
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    query.append('date_from', thirtyDaysAgo.toISOString());
+    query.append('date_to', new Date().toISOString());
   }
   if (params.page) query.append('page', String(params.page));
 
@@ -60,7 +60,6 @@ async function getOffers(params: GetOffersParams): Promise<UserOffer[]> {
   }
 
   const data = await res.json();
-  console.log('API data:', JSON.stringify(data));
   return data.offers ?? [];
 }
 
