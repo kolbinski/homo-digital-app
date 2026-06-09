@@ -14,6 +14,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Stack, useRouter } from 'expo-router';
 import {
   ArrowCircleUp,
+  CaretCircleDown,
+  CaretCircleUp,
   Files,
   Funnel,
   Gear,
@@ -97,9 +99,9 @@ function groupByDate(offers: UserOffer[]): Section[] {
   }
 
   return Object.entries(map).map(([, items]) => ({
-    title: formatSectionTitle(
+    title: `${formatSectionTitle(
       new Date(items[0].applied_at ?? items[0].matched_at),
-    ),
+    )} (${items.length})`,
     data: items,
   }));
 }
@@ -136,7 +138,19 @@ export default function ApplicationsScreen() {
   const [filtersVisible, setFiltersVisible] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
+    new Set(),
+  );
   const sectionListRef = useRef<SectionList<UserOffer, Section>>(null);
+
+  const toggleSection = (title: string) => {
+    setCollapsedSections(prev => {
+      const next = new Set(prev);
+      if (next.has(title)) next.delete(title);
+      else next.add(title);
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (hydrated && (!token || role !== 'client')) {
@@ -323,13 +337,23 @@ export default function ApplicationsScreen() {
           ref={sectionListRef}
           sections={sections}
           keyExtractor={item => item.user_offer_id}
-          renderItem={({ item }) => (
-            <OfferCard {...userOfferToCardProps(item)} />
-          )}
+          renderItem={({ item, section }) =>
+            collapsedSections.has(section.title) ? null : (
+              <OfferCard {...userOfferToCardProps(item)} />
+            )
+          }
           renderSectionHeader={({ section }) => (
-            <View style={styles.sectionHeader}>
+            <TouchableOpacity
+              onPress={() => toggleSection(section.title)}
+              style={styles.sectionHeader}
+            >
               <Text style={styles.sectionHeaderText}>{section.title}</Text>
-            </View>
+              {collapsedSections.has(section.title) ? (
+                <CaretCircleDown size={18} color="#6b7280" />
+              ) : (
+                <CaretCircleUp size={18} color="#6b7280" />
+              )}
+            </TouchableOpacity>
           )}
           contentContainerStyle={styles.listContent}
           refreshing={isFetching && !isLoading}
@@ -413,6 +437,9 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 6,

@@ -8,7 +8,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { ArrowCircleUp, CaretDown, CaretUp } from 'phosphor-react-native';
+import { ArrowCircleUp, CaretCircleDown, CaretCircleUp } from 'phosphor-react-native';
 import { useSyncReport } from '../../../src/hooks/useSyncReports';
 import {
   OfferCard,
@@ -103,9 +103,9 @@ export default function SyncReportDetailScreen() {
                 Worth applying ({worthApplying.length})
               </Text>
               {worthApplyingOpen ? (
-                <CaretUp size={14} color="#16a34a" />
+                <CaretCircleUp size={18} color="#16a34a" />
               ) : (
-                <CaretDown size={14} color="#16a34a" />
+                <CaretCircleDown size={18} color="#16a34a" />
               )}
             </TouchableOpacity>
             {worthApplyingOpen &&
@@ -133,9 +133,9 @@ export default function SyncReportDetailScreen() {
                   Level up & earn more ({levelUp.length})
                 </Text>
                 {levelUpOpen ? (
-                  <CaretUp size={14} color="#ea580c" />
+                  <CaretCircleUp size={18} color="#ea580c" />
                 ) : (
-                  <CaretDown size={14} color="#ea580c" />
+                  <CaretCircleDown size={18} color="#ea580c" />
                 )}
               </TouchableOpacity>
               {levelUpOpen &&
