@@ -87,7 +87,7 @@ export default function LoginScreen() {
           />
 
           <Text style={styles.title}>Homo Digital</Text>
-          <Text style={styles.subtitle}>Your personal career agent.</Text>
+          <Text style={styles.subtitle}>Your career, represented.</Text>
           <Text style={styles.subtitle2}>
             We find the best job offers, apply on your behalf, and negotiate
             salary — so you don't have to.
