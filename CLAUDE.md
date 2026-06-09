@@ -80,3 +80,7 @@ When the user says **"commit"**:
 Always push to `main` — never to `master` or any other branch.
 
 **Never commit or push automatically after making code changes.** Wait for the user to explicitly say "commit". Code changes and commits are two separate steps — do not combine them.
+
+## Multi-repo awareness
+
+The user has multiple repos open simultaneously (homo-digital-app, job-matcher-api, homo-digital-extension). If a task references files that do not exist in this repo (e.g. syncService.ts, API-side code), **stop and tell the user they appear to be in the wrong project** before making any changes. Do not proceed with edits until the user confirms the correct repo.
