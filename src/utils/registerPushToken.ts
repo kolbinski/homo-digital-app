@@ -22,8 +22,10 @@ export async function registerPushToken(apiUrl: string, token: string): Promise<
   try {
     const projectId = Constants.expoConfig?.extra?.eas?.projectId
     const pushToken = await Notifications.getExpoPushTokenAsync({ projectId })
+    console.log('[push] Token generated:', pushToken.data)
+    console.log('[push] ProjectId used:', projectId)
 
-    await fetch(`${apiUrl}/v1/push-tokens`, {
+    const res = await fetch(`${apiUrl}/v1/push-tokens`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,6 +36,8 @@ export async function registerPushToken(apiUrl: string, token: string): Promise<
         platform: Platform.OS,
       }),
     })
+    const data = await res.json()
+    console.log('[push] Token saved to API:', JSON.stringify(data))
   } catch (err) {
     console.log('Push token registration failed (non-critical):', err)
   }
