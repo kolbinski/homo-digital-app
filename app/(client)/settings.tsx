@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Linking,
+  ScrollView,
+  TextInput,
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -37,6 +39,10 @@ export default function SettingsScreen() {
   const [loading, setLoading] = useState(true);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackSuccess, setFeedbackSuccess] = useState(false);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchAgent() {
@@ -64,6 +70,30 @@ export default function SettingsScreen() {
     router.replace('/(auth)/login');
   };
 
+  const submitFeedback = async () => {
+    if (!feedbackText.trim()) return;
+    setFeedbackLoading(true);
+    setFeedbackError(null);
+    setFeedbackSuccess(false);
+    try {
+      const res = await fetch(`${API_URL}/v1/feedback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ message: feedbackText.trim(), source: 'app' }),
+      });
+      if (!res.ok) throw new Error('Failed to send');
+      setFeedbackText('');
+      setFeedbackSuccess(true);
+    } catch {
+      setFeedbackError('Could not send feedback. Please try again.');
+    } finally {
+      setFeedbackLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.root} edges={['bottom']}>
       <Stack.Screen
@@ -75,7 +105,7 @@ export default function SettingsScreen() {
         }}
       />
 
-      <View style={styles.inner}>
+      <ScrollView style={styles.inner} keyboardShouldPersistTaps="handled">
         <Text style={styles.sectionTitle}>Your agent</Text>
 
         {loading ? (
@@ -143,7 +173,50 @@ export default function SettingsScreen() {
             <Text style={styles.errorText}>Could not load agent info.</Text>
           </View>
         )}
-      </View>
+
+        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
+          Feedback &amp; Support
+        </Text>
+        <View style={styles.agentCard}>
+          <TextInput
+            style={styles.feedbackInput}
+            value={feedbackText}
+            onChangeText={text => {
+              setFeedbackText(text);
+              setFeedbackSuccess(false);
+              setFeedbackError(null);
+            }}
+            placeholder="Write your feedback or anything we should improve..."
+            placeholderTextColor="#9ca3af"
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+          />
+          {feedbackSuccess && (
+            <Text style={styles.feedbackSuccess}>
+              Thank you! We'll get back to you soon.
+            </Text>
+          )}
+          {feedbackError && (
+            <Text style={styles.feedbackErrorText}>{feedbackError}</Text>
+          )}
+          <TouchableOpacity
+            style={[
+              styles.sendFeedbackButton,
+              feedbackLoading && { opacity: 0.6 },
+            ]}
+            onPress={submitFeedback}
+            disabled={feedbackLoading}
+            activeOpacity={0.8}
+          >
+            {feedbackLoading ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <Text style={styles.sendFeedbackText}>Send</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
 
       <View style={styles.footer}>
         <TouchableOpacity
@@ -324,5 +397,38 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1a1a1a',
     fontWeight: '500',
+  },
+  feedbackInput: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: '#1a1a1a',
+    backgroundColor: '#f9f9f9',
+    minHeight: 96,
+  },
+  feedbackSuccess: {
+    fontSize: 13,
+    color: '#16a34a',
+    marginTop: 8,
+  },
+  feedbackErrorText: {
+    fontSize: 13,
+    color: '#dc2626',
+    marginTop: 8,
+  },
+  sendFeedbackButton: {
+    marginTop: 12,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  sendFeedbackText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
