@@ -73,85 +73,108 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#000000' }}>
-    <KeyboardAvoidingView
-      style={styles.root}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView
-        contentContainerStyle={styles.inner}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView
+        style={styles.root}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <Image source={require('../../assets/logo.png')} style={styles.logo} />
+        <ScrollView
+          contentContainerStyle={styles.inner}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Image
+            source={require('../../assets/logo.png')}
+            style={styles.logo}
+          />
 
-        <Text style={styles.title}>Homo Digital</Text>
-        <Text style={styles.subtitle}>Your personal career agent.</Text>
-        <Text style={styles.subtitle2}>
-          We find the best job offers, apply on your behalf, and negotiate
-          salary — so you don't have to.
-        </Text>
-
-        <Text style={styles.sectionLabel}>Sign in to your account</Text>
-
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={text => { setEmail(text); setEmailError(null); }}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          textContentType="emailAddress"
-          autoComplete="email"
-          placeholder="you@example.com"
-          placeholderTextColor="#4a4a4a"
-        />
-        {emailError && (
-          <Text style={{ color: '#ef4444', fontSize: 12, marginTop: -10, marginBottom: 10 }}>
-            {emailError}
+          <Text style={styles.title}>Homo Digital</Text>
+          <Text style={styles.subtitle}>Your personal career agent.</Text>
+          <Text style={styles.subtitle2}>
+            We find the best job offers, apply on your behalf, and negotiate
+            salary — so you don't have to.
           </Text>
-        )}
 
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          style={[styles.input, styles.inputPassword]}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          textContentType="password"
-          autoComplete="password"
-          placeholder="••••••••"
-          placeholderTextColor="#4a4a4a"
-        />
+          <Text style={styles.sectionLabel}>Sign in to your account</Text>
 
-        {error && <Text style={styles.error}>{error}</Text>}
-
-        <TouchableOpacity
-          style={styles.signInButton}
-          onPress={handleLogin}
-          disabled={loading}
-          activeOpacity={0.8}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Sign in</Text>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={text => {
+              setEmail(text);
+              setEmailError(null);
+            }}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            textContentType="emailAddress"
+            autoComplete="email"
+            placeholder="you@example.com"
+            placeholderTextColor="#4a4a4a"
+          />
+          {emailError && (
+            <Text
+              style={{
+                color: '#ef4444',
+                fontSize: 12,
+                marginTop: -10,
+                marginBottom: 10,
+              }}
+            >
+              {emailError}
+            </Text>
           )}
-        </TouchableOpacity>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 12 }}>
-          <View style={{ flex: 1, height: 0.5, backgroundColor: '#333' }} />
-          <Text style={{ color: '#6b7280', fontSize: 13, marginHorizontal: 12 }}>or</Text>
-          <View style={{ flex: 1, height: 0.5, backgroundColor: '#333' }} />
-        </View>
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            style={[styles.input, styles.inputPassword]}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            textContentType="password"
+            autoComplete="password"
+            placeholder="••••••••"
+            placeholderTextColor="#4a4a4a"
+          />
 
-        <TouchableOpacity
-          style={styles.joinButton}
-          onPress={() => router.push('/(auth)/join')}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.buttonText}>Join</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          {error && <Text style={styles.error}>{error}</Text>}
+
+          <TouchableOpacity
+            style={styles.signInButton}
+            onPress={handleLogin}
+            disabled={loading}
+            activeOpacity={0.8}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Sign in</Text>
+            )}
+          </TouchableOpacity>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginVertical: 12,
+            }}
+          >
+            <View style={{ flex: 1, height: 0.5, backgroundColor: '#333' }} />
+            <Text
+              style={{ color: '#6b7280', fontSize: 13, marginHorizontal: 12 }}
+            >
+              or
+            </Text>
+            <View style={{ flex: 1, height: 0.5, backgroundColor: '#333' }} />
+          </View>
+
+          <TouchableOpacity
+            style={styles.joinButton}
+            onPress={() => router.push('/(auth)/join')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.buttonText}>Join</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -199,7 +222,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#9ca3af',
     marginBottom: 16,
-    textAlign: 'center',
   },
   label: {
     fontSize: 13,

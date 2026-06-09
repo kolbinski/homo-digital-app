@@ -169,6 +169,7 @@ export default function ApplicationsScreen() {
   const confirmLogout = async () => {
     setShowLogoutModal(false);
     await clearAuth();
+    router.dismissAll();
     router.replace('/(auth)/login');
   };
 
@@ -209,20 +210,20 @@ export default function ApplicationsScreen() {
             <View style={styles.headerRight}>
               <TouchableOpacity onPress={() => setFiltersVisible(v => !v)}>
                 {filtersVisible ? (
-                  <XCircleIcon size={32} color="#1a1a1a" />
+                  <XCircleIcon size={26} color="#1a1a1a" />
                 ) : (
-                  <Funnel size={32} color="#1a1a1a" />
+                  <Funnel size={26} color="#1a1a1a" />
                 )}
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/(client)/sync-reports')}
               >
-                <Files size={32} color="#1a1a1a" />
+                <Files size={26} color="#1a1a1a" />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/(client)/settings')}
               >
-                <Gear size={32} color="#1a1a1a" />
+                <Gear size={26} color="#1a1a1a" />
               </TouchableOpacity>
             </View>
           ),

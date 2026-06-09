@@ -11,7 +11,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
-import { Envelope, Phone, WhatsappLogoIcon } from 'phosphor-react-native';
+import {
+  ChatText,
+  Envelope,
+  Phone,
+  WhatsappLogoIcon,
+} from 'phosphor-react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { LogoutModal } from '../../src/components/LogoutModal';
 
@@ -55,6 +60,7 @@ export default function SettingsScreen() {
   const confirmLogout = async () => {
     setShowLogoutModal(false);
     await clearAuth();
+    router.dismissAll();
     router.replace('/(auth)/login');
   };
 
@@ -195,7 +201,7 @@ export default function SettingsScreen() {
               }}
               activeOpacity={0.7}
             >
-              <Phone size={18} color="#1a1a1a" />
+              <Phone size={24} color="#1a1a1a" />
               <Text style={styles.phoneOptionText}>Call</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -208,8 +214,19 @@ export default function SettingsScreen() {
               }}
               activeOpacity={0.7}
             >
-              <WhatsappLogoIcon size={18} />
+              <WhatsappLogoIcon size={24} />
               <Text style={styles.phoneOptionText}>WhatsApp</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.phoneOption}
+              onPress={() => {
+                setShowPhoneModal(false);
+                Linking.openURL(`sms:${agent?.phone}`);
+              }}
+              activeOpacity={0.7}
+            >
+              <ChatText size={24} color="#1a1a1a" />
+              <Text style={styles.phoneOptionText}>Text</Text>
             </TouchableOpacity>
           </TouchableOpacity>
         </TouchableOpacity>
