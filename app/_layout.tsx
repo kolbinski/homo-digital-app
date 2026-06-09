@@ -21,6 +21,7 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   const hydrate = useAuthStore((s) => s.hydrate)
+  const hydrated = useAuthStore((s) => s.hydrated)
   const router = useRouter()
   const lastNotificationResponse = useLastNotificationResponse()
 
@@ -29,6 +30,7 @@ export default function RootLayout() {
   }, [])
 
   useEffect(() => {
+    if (!hydrated) return
     if (lastNotificationResponse) {
       const data = lastNotificationResponse.notification.request.content.data
       if (data?.type === 'sync_complete' && data?.user_sync_id) {
@@ -37,7 +39,7 @@ export default function RootLayout() {
         router.push('/(client)/sync-reports')
       }
     }
-  }, [lastNotificationResponse])
+  }, [lastNotificationResponse, hydrated])
 
   useEffect(() => {
     const sub = Notifications.addNotificationResponseReceivedListener(response => {

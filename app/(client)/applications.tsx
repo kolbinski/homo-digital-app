@@ -193,22 +193,22 @@ export default function ApplicationsScreen() {
           headerStyle: styles.headerBar,
           headerRight: () => (
             <View style={styles.headerRight}>
+              <TouchableOpacity onPress={() => setFiltersVisible(v => !v)}>
+                {filtersVisible ? (
+                  <XCircleIcon size={32} color="#1a1a1a" />
+                ) : (
+                  <Funnel size={32} color="#1a1a1a" />
+                )}
+              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/(client)/sync-reports')}
               >
-                <Files size={22} color="#1a1a1a" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setFiltersVisible(v => !v)}>
-                {filtersVisible ? (
-                  <XCircleIcon size={22} color="#1a1a1a" />
-                ) : (
-                  <Funnel size={22} color="#1a1a1a" />
-                )}
+                <Files size={32} color="#1a1a1a" />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/(client)/settings')}
               >
-                <Gear size={22} color="#1a1a1a" />
+                <Gear size={32} color="#1a1a1a" />
               </TouchableOpacity>
             </View>
           ),
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
   },
   scrollTopButton: {
     position: 'absolute',
-    bottom: 24,
+    bottom: 60,
     right: 24,
     width: 44,
     height: 44,

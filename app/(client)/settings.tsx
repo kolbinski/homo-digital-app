@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
-import { Envelope, Phone } from 'phosphor-react-native';
+import { Envelope, Phone, WhatsappLogoIcon } from 'phosphor-react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { LogoutModal } from '../../src/components/LogoutModal';
 
@@ -185,7 +185,7 @@ export default function SettingsScreen() {
                 marginBottom: 4,
               }}
             >
-              Contact agent
+              Contact {agent.first_name ?? 'agent'}
             </Text>
             <TouchableOpacity
               style={styles.phoneOption}
@@ -208,10 +208,8 @@ export default function SettingsScreen() {
               }}
               activeOpacity={0.7}
             >
-              <Phone size={18} color="#25d366" />
-              <Text style={[styles.phoneOptionText, { color: '#25d366' }]}>
-                WhatsApp
-              </Text>
+              <WhatsappLogoIcon size={18} />
+              <Text style={styles.phoneOptionText}>WhatsApp</Text>
             </TouchableOpacity>
           </TouchableOpacity>
         </TouchableOpacity>
