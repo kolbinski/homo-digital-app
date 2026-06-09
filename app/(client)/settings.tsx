@@ -185,7 +185,7 @@ export default function SettingsScreen() {
                 marginBottom: 4,
               }}
             >
-              Contact {agent.first_name ?? 'agent'}
+              Contact {agent?.first_name ?? 'agent'}
             </Text>
             <TouchableOpacity
               style={styles.phoneOption}
