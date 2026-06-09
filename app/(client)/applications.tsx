@@ -12,10 +12,19 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Stack, useRouter } from 'expo-router';
-import { ArrowCircleUp, Files, Funnel, Gear, X } from 'phosphor-react-native';
+import {
+  ArrowCircleUp,
+  Files,
+  Funnel,
+  Gear,
+  XCircleIcon,
+} from 'phosphor-react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { useApplications } from '../../src/hooks/useApplications';
-import { OfferCard, userOfferToCardProps } from '../../src/components/OfferCard';
+import {
+  OfferCard,
+  userOfferToCardProps,
+} from '../../src/components/OfferCard';
 import { LogoutModal } from '../../src/components/LogoutModal';
 import type {
   OfferSource,
@@ -191,7 +200,7 @@ export default function ApplicationsScreen() {
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setFiltersVisible(v => !v)}>
                 {filtersVisible ? (
-                  <X size={22} color="#1a1a1a" />
+                  <XCircleIcon size={22} color="#1a1a1a" />
                 ) : (
                   <Funnel size={22} color="#1a1a1a" />
                 )}
@@ -289,11 +298,10 @@ export default function ApplicationsScreen() {
             </TouchableOpacity>
             {selectedDate && (
               <TouchableOpacity
-                style={styles.clearDate}
                 onPress={() => setSelectedDate(null)}
                 activeOpacity={0.7}
               >
-                <X size={14} color="#6b7280" />
+                <XCircleIcon size={38} color="#6b7280" />
               </TouchableOpacity>
             )}
           </View>
@@ -315,7 +323,9 @@ export default function ApplicationsScreen() {
           ref={sectionListRef}
           sections={sections}
           keyExtractor={item => item.user_offer_id}
-          renderItem={({ item }) => <OfferCard {...userOfferToCardProps(item)} />}
+          renderItem={({ item }) => (
+            <OfferCard {...userOfferToCardProps(item)} />
+          )}
           renderSectionHeader={({ section }) => (
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionHeaderText}>{section.title}</Text>
@@ -386,8 +396,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderWidth: 2,
+    borderColor: '#000',
     backgroundColor: '#fff',
   },
   pillActive: {
@@ -401,14 +411,6 @@ const styles = StyleSheet.create({
   },
   pillTextActive: {
     color: '#fff',
-  },
-  clearDate: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-    backgroundColor: '#fff',
   },
   sectionHeader: {
     paddingHorizontal: 16,

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "840778170854",
+    "project_id": "homo-digital-46021",
+    "storage_bucket": "homo-digital-46021.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:840778170854:android:15e779d8915611bf74d627",
+        "android_client_info": {
+          "package_name": "io.homodigital.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfmK8ZRzbZeFh5Xoq5ygAXT4B5lA5bcrY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
