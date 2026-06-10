@@ -20,6 +20,8 @@ export interface UserOffer {
   source: string
   cv_language: string
   cv_url?: string | null
+  cl_url?: string | null
+  cl_status?: string | null
   status: string
   applied_at?: string
   matched_at: string

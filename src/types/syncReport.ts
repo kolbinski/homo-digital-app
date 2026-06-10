@@ -14,6 +14,8 @@ export interface SyncReportOffer {
   missing_skills?: string[]
   skills_to_learn?: string[]
   status?: string | null
+  cl_url?: string | null
+  cl_status?: string | null
 }
 
 export interface SyncReportData {

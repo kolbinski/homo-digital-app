@@ -74,6 +74,7 @@ export interface OfferCardProps {
   url: string;
   status?: string | null;
   cv_url?: string | null;
+  cl_url?: string | null;
 }
 
 export function userOfferToCardProps(offer: UserOffer): OfferCardProps {
@@ -90,6 +91,7 @@ export function userOfferToCardProps(offer: UserOffer): OfferCardProps {
     skills_to_learn: offer.skills_to_learn,
     url: offer.offer_url,
     cv_url: offer.cv_url,
+    cl_url: offer.cl_url,
   };
 }
 
@@ -107,6 +109,7 @@ export function syncOfferToCardProps(offer: SyncReportOffer): OfferCardProps {
     skills_to_learn: offer.skills_to_learn,
     url: offer.url ?? '',
     status: offer.status,
+    cl_url: offer.cl_url,
   };
 }
 
@@ -126,6 +129,7 @@ export function OfferCard(props: OfferCardProps) {
     url,
     status,
     cv_url,
+    cl_url,
   } = props;
   const scoreStyle = getScoreStyle(score);
   const sourceIcon = source ? SOURCE_ICONS[source] : null;
@@ -213,7 +217,7 @@ export function OfferCard(props: OfferCardProps) {
         </View>
       )}
 
-      {(url || cv_url) ? (
+      {(url || cv_url || cl_url) ? (
         <View style={styles.actionsRow}>
           {url ? (
             <TouchableOpacity
@@ -224,14 +228,27 @@ export function OfferCard(props: OfferCardProps) {
               <ArrowSquareOut size={14} color="#2563eb" />
             </TouchableOpacity>
           ) : null}
-          {cv_url ? (
-            <TouchableOpacity
-              onPress={() => Linking.openURL(cv_url)}
-              style={styles.cvButton}
-            >
-              <Text style={styles.cvButtonText}>CV</Text>
-              <ReadCvLogo size={14} color="#2563eb" />
-            </TouchableOpacity>
+          {(cv_url || cl_url) ? (
+            <View style={styles.docButtons}>
+              {cv_url ? (
+                <TouchableOpacity
+                  onPress={() => Linking.openURL(cv_url)}
+                  style={styles.cvButton}
+                >
+                  <Text style={styles.cvButtonText}>CV</Text>
+                  <ReadCvLogo size={14} color="#2563eb" />
+                </TouchableOpacity>
+              ) : null}
+              {cl_url ? (
+                <TouchableOpacity
+                  onPress={() => Linking.openURL(cl_url)}
+                  style={styles.cvButton}
+                >
+                  <Text style={styles.cvButtonText}>CL</Text>
+                  <ReadCvLogo size={14} color="#2563eb" />
+                </TouchableOpacity>
+              ) : null}
+            </View>
           ) : null}
         </View>
       ) : null}
@@ -363,6 +380,11 @@ const styles = StyleSheet.create({
     color: '#2563eb',
     fontSize: 13,
     fontWeight: '500',
+  },
+  docButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   cvButton: {
     flexDirection: 'row',
