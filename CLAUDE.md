@@ -81,6 +81,8 @@ Always push to `main` — never to `master` or any other branch.
 
 **Never commit or push automatically after making code changes.** Wait for the user to explicitly say "commit". Code changes and commits are two separate steps — do not combine them.
 
+**When the user says "commit", always include ALL modified files** — `git add -A` ensures manual changes the user made directly (shown in system-reminder notifications) are staged alongside Claude's changes. Never let a system-reminder about user edits go uncommitted. Write the commit message to reflect ALL changes in the diff, not just Claude's — if the user made manual edits, acknowledge them in the message.
+
 ## Multi-repo awareness
 
 The user has multiple repos open simultaneously (homo-digital-app, job-matcher-api, homo-digital-extension). If a task references files that do not exist in this repo (e.g. syncService.ts, API-side code), **stop and tell the user they appear to be in the wrong project** before making any changes. Do not proceed with edits until the user confirms the correct repo.
