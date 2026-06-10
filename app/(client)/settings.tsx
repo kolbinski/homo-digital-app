@@ -25,6 +25,14 @@ import { LogoutModal } from '../../src/components/LogoutModal';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
+function formatPhone(phone: string): string {
+  const digits = phone.replace(/\s+/g, '');
+  if (digits.length < 9) return phone;
+  const local = digits.slice(-9);
+  const prefix = digits.slice(0, -9);
+  return `${prefix} ${local.slice(0, 3)} ${local.slice(3, 6)} ${local.slice(6)}`.trim();
+}
+
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function formatSubDate(iso: string): string {
   const d = new Date(iso);
@@ -182,7 +190,7 @@ export default function SettingsScreen() {
                 activeOpacity={0.7}
               >
                 <Phone size={16} color="#2563eb" />
-                <Text style={styles.contactText}>{agent.phone}</Text>
+                <Text style={styles.contactText}>{formatPhone(agent.phone)}</Text>
               </TouchableOpacity>
             )}
           </View>
