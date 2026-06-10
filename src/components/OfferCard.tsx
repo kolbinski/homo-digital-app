@@ -1,6 +1,6 @@
 import { View, Text, Image, TouchableOpacity, Linking, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowSquareOut, CurrencyCircleDollar, ReadCvLogo } from 'phosphor-react-native';
+import { ArrowSquareOut, CurrencyCircleDollar, FileText, ReadCvLogo } from 'phosphor-react-native';
 import type { UserOffer, SalaryEntry } from '../types/userOffer';
 import type { SyncReportOffer } from '../types/syncReport';
 import { formatNum } from '../utils/formatNum';
@@ -232,7 +232,7 @@ export function OfferCard(props: OfferCardProps) {
             <View style={styles.docButtons}>
               {cv_url ? (
                 <TouchableOpacity
-                  onPress={() => Linking.openURL(cv_url)}
+                  onPress={() => Linking.openURL(`${cv_url}?t=${Date.now()}`)}
                   style={styles.cvButton}
                 >
                   <Text style={styles.cvButtonText}>CV</Text>
@@ -241,11 +241,11 @@ export function OfferCard(props: OfferCardProps) {
               ) : null}
               {cl_url ? (
                 <TouchableOpacity
-                  onPress={() => Linking.openURL(cl_url)}
+                  onPress={() => Linking.openURL(`${cl_url}?t=${Date.now()}`)}
                   style={styles.cvButton}
                 >
                   <Text style={styles.cvButtonText}>CL</Text>
-                  <ReadCvLogo size={14} color="#2563eb" />
+                  <FileText size={14} color="#2563eb" />
                 </TouchableOpacity>
               ) : null}
             </View>
