@@ -19,6 +19,7 @@ export interface UserOffer {
   salary: SalaryEntry[]
   source: string
   cv_language: string
+  cv_url?: string | null
   status: string
   applied_at?: string
   matched_at: string

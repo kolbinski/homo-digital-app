@@ -1,6 +1,6 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Linking, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowSquareOut, CurrencyCircleDollar } from 'phosphor-react-native';
+import { ArrowSquareOut, CurrencyCircleDollar, ReadCvLogo } from 'phosphor-react-native';
 import type { UserOffer, SalaryEntry } from '../types/userOffer';
 import type { SyncReportOffer } from '../types/syncReport';
 import { formatNum } from '../utils/formatNum';
@@ -73,6 +73,7 @@ export interface OfferCardProps {
   skills_to_learn?: string[];
   url: string;
   status?: string | null;
+  cv_url?: string | null;
 }
 
 export function userOfferToCardProps(offer: UserOffer): OfferCardProps {
@@ -88,6 +89,7 @@ export function userOfferToCardProps(offer: UserOffer): OfferCardProps {
     missing_skills: offer.claude_missing_skills,
     skills_to_learn: offer.skills_to_learn,
     url: offer.offer_url,
+    cv_url: offer.cv_url,
   };
 }
 
@@ -123,6 +125,7 @@ export function OfferCard(props: OfferCardProps) {
     skills_to_learn,
     url,
     status,
+    cv_url,
   } = props;
   const scoreStyle = getScoreStyle(score);
   const sourceIcon = source ? SOURCE_ICONS[source] : null;
@@ -210,14 +213,27 @@ export function OfferCard(props: OfferCardProps) {
         </View>
       )}
 
-      {url ? (
-        <TouchableOpacity
-          onPress={() => router.push({ pathname: '/offer', params: { url } })}
-          style={styles.viewOfferButton}
-        >
-          <Text style={styles.viewOfferText}>View offer</Text>
-          <ArrowSquareOut size={14} color="#2563eb" />
-        </TouchableOpacity>
+      {(url || cv_url) ? (
+        <View style={styles.actionsRow}>
+          {url ? (
+            <TouchableOpacity
+              onPress={() => router.push({ pathname: '/offer', params: { url } })}
+              style={styles.viewOfferButton}
+            >
+              <Text style={styles.viewOfferText}>View offer</Text>
+              <ArrowSquareOut size={14} color="#2563eb" />
+            </TouchableOpacity>
+          ) : null}
+          {cv_url ? (
+            <TouchableOpacity
+              onPress={() => Linking.openURL(cv_url)}
+              style={styles.cvButton}
+            >
+              <Text style={styles.cvButtonText}>CV</Text>
+              <ReadCvLogo size={14} color="#2563eb" />
+            </TouchableOpacity>
+          ) : null}
+        </View>
       ) : null}
     </View>
   );
@@ -332,14 +348,28 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#dc2626',
   },
-  viewOfferButton: {
+  actionsRow: {
     marginTop: 6,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  viewOfferButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 4,
-    alignSelf: 'flex-start',
   },
   viewOfferText: {
+    color: '#2563eb',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  cvButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  cvButtonText: {
     color: '#2563eb',
     fontSize: 13,
     fontWeight: '500',
