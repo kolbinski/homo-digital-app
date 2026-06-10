@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   View,
   Text,
@@ -24,6 +25,12 @@ import { LogoutModal } from '../../src/components/LogoutModal';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function formatSubDate(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 interface Agent {
   first_name: string;
   last_name: string;
@@ -39,6 +46,17 @@ export default function SettingsScreen() {
   const [loading, setLoading] = useState(true);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const { data: subscription, isLoading: subLoading, isError: subError } = useQuery({
+    queryKey: ['subscription-status'],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/v1/subscription/status`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch subscription');
+      return res.json() as Promise<{ subscribed_to: string | null }>;
+    },
+  });
+
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [feedbackSuccess, setFeedbackSuccess] = useState(false);
@@ -172,6 +190,27 @@ export default function SettingsScreen() {
           <View style={styles.agentCard}>
             <Text style={styles.errorText}>Could not load agent info.</Text>
           </View>
+        )}
+
+        {!subError && (
+          <>
+            <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
+              Subscription
+            </Text>
+            <View style={styles.agentCard}>
+              {subLoading ? (
+                <ActivityIndicator size="small" color="#1a1a1a" />
+              ) : subscription?.subscribed_to && new Date(subscription.subscribed_to) > new Date() ? (
+                <Text style={styles.subscriptionActive}>
+                  Active until {formatSubDate(subscription.subscribed_to)}
+                </Text>
+              ) : (
+                <Text style={styles.subscriptionInactive}>
+                  No active subscription
+                </Text>
+              )}
+            </View>
+          </>
         )}
 
         <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
@@ -396,6 +435,16 @@ const styles = StyleSheet.create({
   phoneOptionText: {
     fontSize: 16,
     color: '#1a1a1a',
+    fontWeight: '500',
+  },
+  subscriptionActive: {
+    fontSize: 14,
+    color: '#16a34a',
+    fontWeight: '500',
+  },
+  subscriptionInactive: {
+    fontSize: 14,
+    color: '#dc2626',
     fontWeight: '500',
   },
   feedbackInput: {
