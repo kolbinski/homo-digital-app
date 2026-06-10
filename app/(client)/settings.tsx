@@ -199,7 +199,7 @@ export default function SettingsScreen() {
             </Text>
             <View style={styles.agentCard}>
               {subLoading ? (
-                <ActivityIndicator size="small" color="#1a1a1a" />
+                <ActivityIndicator size="large" color="#1a1a1a" />
               ) : subscription?.subscribed_to && new Date(subscription.subscribed_to) > new Date() ? (
                 <Text style={styles.subscriptionActive}>
                   Active until {formatSubDate(subscription.subscribed_to)}
