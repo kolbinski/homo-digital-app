@@ -9,9 +9,11 @@ import {
 import { useRouter } from 'expo-router';
 import {
   ArrowSquareOut,
+  CheckCircle,
   CurrencyCircleDollar,
   FileText,
   ReadCvLogo,
+  WarningCircle,
 } from 'phosphor-react-native';
 import type { UserOffer, SalaryEntry } from '../types/userOffer';
 import type { SyncReportOffer } from '../types/syncReport';
@@ -81,6 +83,7 @@ export interface OfferCardProps {
   work_model?: string | null;
   salary: SalaryEntry[];
   role_fit?: string | null;
+  matched_reasons?: { pros: string[]; cons: string[] } | null;
   missing_skills?: string[];
   skills_to_learn?: string[];
   url: string;
@@ -99,6 +102,7 @@ export function userOfferToCardProps(offer: UserOffer): OfferCardProps {
     work_model: offer.work_model,
     salary: offer.salary,
     role_fit: offer.claude_role_fit,
+    matched_reasons: offer.claude_matched_reasons,
     missing_skills: offer.claude_missing_skills,
     skills_to_learn: offer.skills_to_learn,
     url: offer.offer_url,
@@ -117,6 +121,7 @@ export function syncOfferToCardProps(offer: SyncReportOffer): OfferCardProps {
     work_model: offer.work_model,
     salary: offer.salary ?? [],
     role_fit: offer.role_fit,
+    matched_reasons: offer.matched_reasons,
     missing_skills: offer.missing_skills,
     skills_to_learn: offer.skills_to_learn,
     url: offer.url ?? '',
@@ -136,6 +141,7 @@ export function OfferCard(props: OfferCardProps) {
     work_model,
     salary,
     role_fit,
+    matched_reasons,
     missing_skills,
     skills_to_learn,
     url,
@@ -217,6 +223,23 @@ export function OfferCard(props: OfferCardProps) {
       )}
 
       {role_fit ? <Text style={styles.roleFit}>{role_fit}</Text> : null}
+
+      {matched_reasons && (matched_reasons.cons.length > 0 || matched_reasons.pros.length > 0) && (
+        <View style={styles.reasonsBlock}>
+          {matched_reasons.cons.map((item, i) => (
+            <View key={`con-${i}`} style={styles.reasonRow}>
+              <WarningCircle size={14} color="#f97316" weight="fill" />
+              <Text style={styles.reasonConText}>{item}</Text>
+            </View>
+          ))}
+          {matched_reasons.pros.map((item, i) => (
+            <View key={`pro-${i}`} style={styles.reasonRow}>
+              <CheckCircle size={14} color="#16a34a" weight="fill" />
+              <Text style={styles.reasonProText}>{item}</Text>
+            </View>
+          ))}
+        </View>
+      )}
 
       {mergedMissingSkills.length > 0 && (
         <View style={styles.missingRow}>
@@ -355,6 +378,27 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#4a4a4a',
     marginTop: 4,
+  },
+  reasonsBlock: {
+    marginTop: 6,
+    gap: 4,
+  },
+  reasonRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 6,
+  },
+  reasonConText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#c2410c',
+    lineHeight: 18,
+  },
+  reasonProText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#15803d',
+    lineHeight: 18,
   },
   missingRow: {
     flexDirection: 'row',

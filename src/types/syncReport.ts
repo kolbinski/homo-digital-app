@@ -12,6 +12,7 @@ export interface SyncReportOffer {
   city?: string
   source?: string
   missing_skills?: string[]
+  matched_reasons?: { pros: string[]; cons: string[] } | null
   skills_to_learn?: string[]
   status?: string | null
   cl_url?: string | null

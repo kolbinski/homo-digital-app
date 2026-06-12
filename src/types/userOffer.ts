@@ -15,6 +15,7 @@ export interface UserOffer {
   claude_score: number
   claude_role_fit: string
   claude_missing_skills?: string[]
+  claude_matched_reasons?: { pros: string[]; cons: string[] } | null
   skills_to_learn?: string[]
   salary: SalaryEntry[]
   source: string
