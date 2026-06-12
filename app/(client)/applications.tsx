@@ -22,6 +22,7 @@ import {
   XCircleIcon,
 } from 'phosphor-react-native';
 import { useAuthStore } from '../../src/store/authStore';
+import { supabase } from '../../src/lib/supabase';
 import { useApplications } from '../../src/hooks/useApplications';
 import {
   OfferCard,
@@ -163,6 +164,24 @@ export default function ApplicationsScreen() {
     source,
     selectedDate,
   );
+
+  useEffect(() => {
+    if (!userId) return;
+    const channel = supabase
+      .channel('new-offers')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'user_offers',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => { refetch(); },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [userId]);
 
   const handleLogout = () => setShowLogoutModal(true);
 
